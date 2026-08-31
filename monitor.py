@@ -105,7 +105,8 @@ def send_sms(config, body):
 
 def main():
     now_local = datetime.now(LOCAL_TZ)
-    if not (ACTIVE_START_HOUR <= now_local.hour < ACTIVE_END_HOUR):
+    force_run = os.environ.get("FORCE_RUN", "").lower() == "true"
+    if not force_run and not (ACTIVE_START_HOUR <= now_local.hour < ACTIVE_END_HOUR):
         logging.info("outside active window (%s local), skipping", now_local.strftime("%H:%M %Z"))
         return
 

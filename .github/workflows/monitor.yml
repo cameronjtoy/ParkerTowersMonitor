@@ -3,7 +3,16 @@ name: apartment-monitor
 on:
   schedule:
     - cron: '*/15 * * * *'
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      force_run:
+        description: 'Bypass the 6-10am active window (for manual testing)'
+        type: boolean
+        default: false
+      threshold_override:
+        description: 'Override price threshold for this run (for manual testing)'
+        type: string
+        default: ''
 
 permissions:
   contents: write
@@ -28,7 +37,8 @@ jobs:
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
           NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
           SMS_GATEWAY_ADDRESS: ${{ secrets.SMS_GATEWAY_ADDRESS }}
-          PRICE_THRESHOLD: '2200'
+          PRICE_THRESHOLD: ${{ github.event.inputs.threshold_override != '' && github.event.inputs.threshold_override || '2200' }}
+          FORCE_RUN: ${{ github.event.inputs.force_run }}
         run: python3 monitor.py
 
       - name: Persist notification state
