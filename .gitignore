@@ -1,0 +1,6 @@
+config.json
+config.json.bak
+monitor.log
+launchd.out.log
+launchd.err.log
+__pycache__/
