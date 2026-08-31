@@ -37,15 +37,22 @@ def load_config():
     # Prefer environment variables (set as GitHub Actions secrets when run in CI);
     # fall back to a local config.json for running on a personal machine.
     if os.environ.get("GMAIL_ADDRESS"):
-        return {
+        config = {
             "gmail_address": os.environ["GMAIL_ADDRESS"],
             "gmail_app_password": os.environ["GMAIL_APP_PASSWORD"],
             "notify_email": os.environ["NOTIFY_EMAIL"],
             "sms_gateway_address": os.environ["SMS_GATEWAY_ADDRESS"],
             "price_threshold": int(os.environ.get("PRICE_THRESHOLD", "2200")),
         }
-    with open(CONFIG_PATH) as f:
-        return json.load(f)
+    else:
+        with open(CONFIG_PATH) as f:
+            config = json.load(f)
+
+    gateways = config["sms_gateway_address"]
+    if isinstance(gateways, str):
+        gateways = [g.strip() for g in gateways.split(",") if g.strip()]
+    config["sms_gateway_addresses"] = gateways
+    return config
 
 
 def load_seen():
@@ -97,10 +104,11 @@ def send_sms(config, body):
     msg = MIMEText(body)
     msg["Subject"] = ""
     msg["From"] = config["gmail_address"]
-    msg["To"] = config["sms_gateway_address"]
+    recipients = config["sms_gateway_addresses"]
+    msg["To"] = ", ".join(recipients)
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
         server.login(config["gmail_address"], config["gmail_app_password"])
-        server.sendmail(config["gmail_address"], [config["sms_gateway_address"]], msg.as_string())
+        server.sendmail(config["gmail_address"], recipients, msg.as_string())
 
 
 def main():
