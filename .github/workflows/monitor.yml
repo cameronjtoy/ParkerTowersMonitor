@@ -2,7 +2,9 @@ name: apartment-monitor
 
 on:
   schedule:
-    - cron: '*/15 * * * *'
+    # UTC 10:00-14:59 covers 6:00-9:59am America/New_York across both EDT (UTC-4)
+    # and EST (UTC-5); monitor.py's own local-time gate filters the DST-mismatched edges.
+    - cron: '*/15 10-14 * * *'
   workflow_dispatch:
     inputs:
       force_run:
