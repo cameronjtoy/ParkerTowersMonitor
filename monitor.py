@@ -147,6 +147,19 @@ def supabase_request(config, method, path, body=None, extra_headers=None):
         return json.loads(raw) if raw else None
 
 
+def fetch_subscriber_gateways(config):
+    if not config.get("supabase_url") or not config.get("supabase_service_key"):
+        return []
+    try:
+        rows = supabase_request(
+            config, "GET", "/rest/v1/subscribers?select=gateway_email&active=eq.true"
+        ) or []
+        return [r["gateway_email"] for r in rows]
+    except Exception as e:
+        logging.error("fetching subscribers failed: %s", e)
+        return []
+
+
 def sync_to_supabase(config, units):
     if not config.get("supabase_url") or not config.get("supabase_service_key"):
         return
@@ -188,6 +201,11 @@ def main():
 
     config = load_config()
     threshold = config.get("price_threshold", 2200)
+
+    subscriber_gateways = fetch_subscriber_gateways(config)
+    if subscriber_gateways:
+        config["sms_gateway_addresses"] = list(set(config["sms_gateway_addresses"]) | set(subscriber_gateways))
+        logging.info("added %d subscriber(s) from Supabase", len(subscriber_gateways))
 
     try:
         data = fetch_units()

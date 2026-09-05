@@ -34,6 +34,17 @@
   .card-bottom{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:10px;margin-top:12px;font-size:12px;color:var(--ink-soft);}
   .empty, .loading{text-align:center;padding:40px 20px;color:var(--ink-soft);font-size:14px;line-height:1.6;}
   footer{margin-top:22px;font-size:12px;color:var(--ink-soft);line-height:1.6;border-top:1px solid var(--line);padding-top:14px;}
+  .signup-panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px 16px;margin-bottom:16px;}
+  .signup-title{font-family:Georgia,serif;font-size:15px;margin:0 0 4px;}
+  .signup-sub{font-size:12.5px;color:var(--ink-soft);margin:0 0 12px;}
+  .signup-row{display:flex;gap:8px;flex-wrap:wrap;}
+  .signup-row input, .signup-row select{flex:1 1 140px;padding:8px 9px;border:1px solid var(--line);border-radius:6px;font-size:13.5px;background:var(--paper);color:var(--ink);}
+  .signup-row button{padding:8px 14px;border:1px solid var(--ink);border-radius:6px;background:var(--ink);color:var(--paper);font-size:13.5px;cursor:pointer;white-space:nowrap;}
+  .signup-row button.secondary{background:var(--paper);color:var(--ink-soft);border-color:var(--line);}
+  .signup-msg{font-size:12.5px;margin-top:8px;min-height:16px;}
+  .signup-msg.ok{color:var(--accent);}
+  .signup-msg.err{color:#8B3A3A;}
+  .signup-toggle{font-size:12px;color:var(--ink-soft);text-decoration:underline;cursor:pointer;margin-top:8px;display:inline-block;}
 </style>
 </head>
 <body>
@@ -42,6 +53,24 @@
     <h1>Rental Monitor</h1>
     <p class="sub">Live availability across the Stuyvesant Town / Parker Towers / Kips Bay Court / Peter Cooper Village portfolio.</p>
   </header>
+
+  <div class="signup-panel">
+    <p class="signup-title">Get texted for new listings</p>
+    <p class="signup-sub">Add your number to get a text whenever a new unit under the threshold appears. No confirmation step — anyone with this link can add or remove a number.</p>
+    <div class="signup-row">
+      <input type="tel" id="phoneInput" placeholder="Phone number">
+      <select id="carrierInput">
+        <option value="">Carrier…</option>
+      </select>
+      <button id="subscribeBtn">Text me</button>
+    </div>
+    <p class="signup-msg" id="signupMsg"></p>
+    <span class="signup-toggle" id="unsubscribeToggle">Remove my number</span>
+    <div class="signup-row" id="unsubscribeRow" style="display:none;margin-top:8px;">
+      <input type="tel" id="unsubPhoneInput" placeholder="Phone number to remove">
+      <button class="secondary" id="unsubscribeBtn">Remove</button>
+    </div>
+  </div>
 
   <div class="filters">
     <div class="filter-row" id="propertyRow"></div>
@@ -73,6 +102,84 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_
 let listings = [];
 const priceOptions = ['All', `Under $${PRICE_THRESHOLD}`, 'Under $5000', '$5000+'];
 let state = { property:'All', priceBand:'All', showDelisted:false };
+
+const CARRIER_GATEWAYS = {
+  'AT&T': 'txt.att.net',
+  'Verizon': 'vtext.com',
+  'T-Mobile': 'tmomail.net',
+  'Mint Mobile': 'tmomail.net',
+  'Metro by T-Mobile': 'mymetropcs.com',
+  'Boost Mobile': 'sms.myboostmobile.com',
+  'Cricket Wireless': 'sms.cricketwireless.net',
+  'US Cellular': 'email.uscc.net',
+  'Google Fi': 'msg.fi.google.com',
+  'Visible': 'vtext.com',
+  'Xfinity Mobile': 'vtext.com',
+};
+
+function populateCarrierOptions(){
+  const select = document.getElementById('carrierInput');
+  Object.keys(CARRIER_GATEWAYS).forEach(name=>{
+    const opt = document.createElement('option');
+    opt.value = name;
+    opt.textContent = name;
+    select.appendChild(opt);
+  });
+}
+
+function normalizePhone(raw){
+  let digits = raw.replace(/\D/g, '');
+  if(digits.length === 11 && digits.startsWith('1')) digits = digits.slice(1);
+  return digits;
+}
+
+function showSignupMsg(text, ok){
+  const el = document.getElementById('signupMsg');
+  el.textContent = text;
+  el.className = 'signup-msg ' + (ok ? 'ok' : 'err');
+}
+
+async function subscribe(){
+  const phone = normalizePhone(document.getElementById('phoneInput').value);
+  const carrier = document.getElementById('carrierInput').value;
+  if(phone.length !== 10){
+    showSignupMsg('Enter a valid 10-digit US phone number.', false);
+    return;
+  }
+  if(!carrier){
+    showSignupMsg('Select a carrier.', false);
+    return;
+  }
+  const gatewayEmail = phone + '@' + CARRIER_GATEWAYS[carrier];
+  const { error } = await supabaseClient
+    .from('subscribers')
+    .upsert({ phone_number: phone, carrier, gateway_email: gatewayEmail, active: true }, { onConflict: 'gateway_email' });
+  if(error){
+    showSignupMsg('Could not add number: ' + error.message, false);
+    return;
+  }
+  showSignupMsg("You're subscribed — texts start on the next check.", true);
+  document.getElementById('phoneInput').value = '';
+  document.getElementById('carrierInput').value = '';
+}
+
+async function unsubscribe(){
+  const phone = normalizePhone(document.getElementById('unsubPhoneInput').value);
+  if(phone.length !== 10){
+    showSignupMsg('Enter a valid 10-digit US phone number to remove.', false);
+    return;
+  }
+  const { error } = await supabaseClient
+    .from('subscribers')
+    .delete()
+    .eq('phone_number', phone);
+  if(error){
+    showSignupMsg('Could not remove number: ' + error.message, false);
+    return;
+  }
+  showSignupMsg('Removed, if it was subscribed.', true);
+  document.getElementById('unsubPhoneInput').value = '';
+}
 
 async function loadListings(){
   const { data, error } = await supabaseClient
@@ -169,7 +276,14 @@ function render(){
 }
 
 document.getElementById('delistedToggle').onclick = ()=>{ state.showDelisted = !state.showDelisted; render(); };
+document.getElementById('subscribeBtn').onclick = subscribe;
+document.getElementById('unsubscribeBtn').onclick = unsubscribe;
+document.getElementById('unsubscribeToggle').onclick = ()=>{
+  const row = document.getElementById('unsubscribeRow');
+  row.style.display = row.style.display === 'none' ? 'flex' : 'none';
+};
 
+populateCarrierOptions();
 loadListings();
 </script>
 </body>
