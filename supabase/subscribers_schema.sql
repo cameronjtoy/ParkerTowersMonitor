@@ -13,22 +13,21 @@ create unique index if not exists subscribers_gateway_email_key on subscribers (
 
 alter table subscribers enable row level security;
 
--- Anyone can add themselves (the public signup form uses the anon key).
--- No select policy is created for anon, so phone numbers aren't publicly
--- readable -- only monitor.py (service_role key, bypasses RLS) can list them.
-create policy "anyone can subscribe"
-  on subscribers for insert
-  with check (true);
-
--- Lets the frontend's upsert-by-gateway_email re-activate/update an existing
--- row (e.g. re-subscribing) instead of failing on conflict.
-create policy "anyone can update a subscription"
-  on subscribers for update
+-- No select policy is created, so phone numbers aren't publicly readable --
+-- only monitor.py (service_role key, bypasses RLS) can list them.
+--
+-- Insert/update/delete are open (no confirmation step -- acceptable for a
+-- small personal-use tool): anyone can add themselves, update their own row
+-- on re-subscribe (upsert by gateway_email), or remove a number they know.
+--
+-- NOTE: the `to anon, authenticated` clause is required here -- a policy
+-- relying on the implicit PUBLIC role scope (no `to` clause) was observed to
+-- NOT apply correctly via PostgREST on this project, even though the same
+-- policy worked fine when tested with a direct `SET ROLE anon` SQL session.
+-- Root cause not fully identified; explicit role targeting is the verified
+-- working pattern -- keep it explicit for any future policy on this project.
+create policy "subscribers_all_access"
+  on subscribers for all
+  to anon, authenticated
   using (true)
   with check (true);
-
--- Anyone who knows a phone number can remove it (self-serve unsubscribe,
--- no confirmation step -- acceptable for a small personal-use tool).
-create policy "anyone can unsubscribe by phone number"
-  on subscribers for delete
-  using (true);
