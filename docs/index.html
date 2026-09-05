@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rental Monitor</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --paper:#F5F3EE; --card:#FFFFFF; --ink:#1C1B19; --ink-soft:#5A574D; --line:#DAD4C6;
+    --accent:#1F4B4A; --accent-tint:#E4EDEC; --deal:#A9822F; --deal-tint:#F2E9D3;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;}
+  .wrap{max-width:640px;margin:0 auto;padding:20px 16px 48px;}
+  h1{font-family:Georgia,serif;font-size:26px;margin:0 0 4px;}
+  .sub{color:var(--ink-soft);font-size:14px;margin:0;}
+  .filters{position:sticky;top:0;background:var(--paper);padding:14px 0 10px;z-index:5;border-bottom:1px solid var(--line);margin-bottom:14px;}
+  .filter-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;}
+  .filter-row + .filter-row{margin-top:8px;}
+  .chip{flex:0 0 auto;padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);font-size:13px;color:var(--ink-soft);cursor:pointer;white-space:nowrap;}
+  .chip.active{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .meta-line{display:flex;justify-content:space-between;font-size:13px;color:var(--ink-soft);margin:2px 0 14px;}
+  .meta-line button{background:none;border:none;color:var(--ink-soft);text-decoration:underline;font-size:13px;cursor:pointer;padding:0;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:12px;}
+  .card.is-deal{border-color:var(--deal);}
+  .card-top{display:flex;justify-content:space-between;gap:10px;}
+  .place{font-family:Georgia,serif;font-size:17px;margin:0 0 2px;}
+  .property-tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:5px;margin-top:3px;background:var(--accent-tint);color:var(--accent);}
+  .price{font-family:Georgia,serif;font-size:19px;font-weight:bold;white-space:nowrap;}
+  .card.is-deal .price{color:var(--deal);}
+  .deal-pill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:5px;background:var(--deal-tint);color:var(--deal);margin-left:6px;vertical-align:middle;}
+  .facts{font-size:13.5px;color:var(--ink-soft);margin:10px 0 0;}
+  .card-bottom{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:10px;margin-top:12px;font-size:12px;color:var(--ink-soft);}
+  .empty, .loading{text-align:center;padding:40px 20px;color:var(--ink-soft);font-size:14px;line-height:1.6;}
+  footer{margin-top:22px;font-size:12px;color:var(--ink-soft);line-height:1.6;border-top:1px solid var(--line);padding-top:14px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Rental Monitor</h1>
+    <p class="sub">Live availability across the Stuyvesant Town / Parker Towers / Kips Bay Court / Peter Cooper Village portfolio.</p>
+  </header>
+
+  <div class="filters">
+    <div class="filter-row" id="propertyRow"></div>
+    <div class="filter-row" id="priceRow"></div>
+  </div>
+
+  <div class="meta-line">
+    <span id="countLine"></span>
+    <button id="delistedToggle">Show delisted</button>
+  </div>
+
+  <div id="loadingState" class="loading">Loading listings…</div>
+  <div id="cardList"></div>
+  <div class="empty" id="emptyState" style="display:none;"></div>
+
+  <footer>
+    Checked every 15 minutes, 6–10am ET daily. Units under the alert threshold are highlighted in gold. Not affiliated with the property manager.
+  </footer>
+</div>
+
+<script src="config.js"></script>
+<script>
+// config.js (untracked, see config.example.js) must define:
+//   const SUPABASE_URL = "https://xxxx.supabase.co";
+//   const SUPABASE_ANON_KEY = "eyJ...";   <- the ANON key only, never service_role
+//   const PRICE_THRESHOLD = 2200;
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let listings = [];
+const priceOptions = ['All', `Under $${PRICE_THRESHOLD}`, 'Under $5000', '$5000+'];
+let state = { property:'All', priceBand:'All', showDelisted:false };
+
+async function loadListings(){
+  const { data, error } = await supabaseClient
+    .from('listings')
+    .select('*')
+    .order('price', { ascending: true });
+  if(error){
+    document.getElementById('loadingState').textContent = 'Could not load listings: ' + error.message;
+    return;
+  }
+  listings = data;
+  document.getElementById('loadingState').style.display = 'none';
+  render();
+}
+
+function fmtPrice(n){ return '$' + Math.round(n).toLocaleString('en-US'); }
+
+function timeAgo(iso){
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const mins = Math.round(diffMs / 60000);
+  if(mins < 60) return mins + 'm ago';
+  const hours = Math.round(mins / 60);
+  if(hours < 24) return hours + 'h ago';
+  return Math.round(hours / 24) + 'd ago';
+}
+
+function inPriceBand(price){
+  if(state.priceBand==='All') return true;
+  if(state.priceBand===`Under $${PRICE_THRESHOLD}`) return price < PRICE_THRESHOLD;
+  if(state.priceBand==='Under $5000') return price < 5000;
+  if(state.priceBand==='$5000+') return price >= 5000;
+  return true;
+}
+
+function buildChips(row, options, key){
+  row.innerHTML = '';
+  options.forEach(opt=>{
+    const chip = document.createElement('div');
+    chip.className = 'chip' + (state[key]===opt ? ' active' : '');
+    chip.textContent = opt;
+    chip.onclick = ()=>{ state[key] = opt; render(); };
+    row.appendChild(chip);
+  });
+}
+
+function render(){
+  const propertyOptions = ['All', ...new Set(listings.map(l=>l.property))].filter(Boolean);
+  buildChips(document.getElementById('propertyRow'), propertyOptions, 'property');
+  buildChips(document.getElementById('priceRow'), priceOptions, 'priceBand');
+
+  let filtered = listings.filter(l=>{
+    if(!state.showDelisted && !l.active) return false;
+    if(state.property!=='All' && l.property!==state.property) return false;
+    if(!inPriceBand(l.price)) return false;
+    return true;
+  });
+
+  const list = document.getElementById('cardList');
+  const empty = document.getElementById('emptyState');
+  document.getElementById('countLine').textContent = filtered.length + (filtered.length===1 ? ' listing' : ' listings');
+  document.getElementById('delistedToggle').textContent = state.showDelisted ? 'Hide delisted' : 'Show delisted';
+
+  if(filtered.length===0){
+    list.innerHTML = '';
+    empty.style.display = 'block';
+    empty.textContent = "Nothing matches that combination right now.";
+    return;
+  }
+  empty.style.display = 'none';
+
+  list.innerHTML = filtered.map(l=>{
+    const isDeal = l.price < PRICE_THRESHOLD;
+    const factsParts = [];
+    if(l.beds != null) factsParts.push(l.beds + ' bd');
+    if(l.baths != null) factsParts.push(l.baths + ' ba');
+    if(l.sqft) factsParts.push(l.sqft + ' ft²');
+    return `
+      <div class="card ${isDeal ? 'is-deal' : ''}">
+        <div class="card-top">
+          <div>
+            <p class="place">Unit ${l.unit_number || l.id}${!l.active ? ' (delisted)' : ''}</p>
+            <span class="property-tag">${l.property}</span>
+          </div>
+          <div class="price">${fmtPrice(l.price)}${isDeal ? '<span class="deal-pill">Under threshold</span>' : ''}</div>
+        </div>
+        <div class="facts">${factsParts.join(' · ')}${l.address ? ' · ' + l.address : ''}</div>
+        <div class="card-bottom">
+          <span>Available: ${l.available_date || 'n/a'}</span>
+          <span>Last seen ${timeAgo(l.last_seen)}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+document.getElementById('delistedToggle').onclick = ()=>{ state.showDelisted = !state.showDelisted; render(); };
+
+loadListings();
+</script>
+</body>
+</html>

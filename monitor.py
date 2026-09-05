@@ -6,8 +6,9 @@ import random
 import smtplib
 import sys
 import time
+import urllib.error
 import urllib.request
-from datetime import datetime
+from datetime import datetime, timezone
 from email.mime.text import MIMEText
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -52,6 +53,9 @@ def load_config():
     if isinstance(gateways, str):
         gateways = [g.strip() for g in gateways.split(",") if g.strip()]
     config["sms_gateway_addresses"] = gateways
+
+    config["supabase_url"] = os.environ.get("SUPABASE_URL", config.get("supabase_url"))
+    config["supabase_service_key"] = os.environ.get("SUPABASE_SERVICE_KEY", config.get("supabase_service_key"))
     return config
 
 
@@ -111,6 +115,67 @@ def send_sms(config, body):
         server.sendmail(config["gmail_address"], recipients, msg.as_string())
 
 
+def unit_to_row(u):
+    return {
+        "id": u["unitSpk"],
+        "property": (u.get("property") or {}).get("name", ""),
+        "unit_number": u.get("unitNumber"),
+        "price": u.get("price"),
+        "beds": u.get("bedrooms"),
+        "baths": u.get("bathrooms"),
+        "sqft": u.get("sqft"),
+        "address": (u.get("building") or {}).get("address", ""),
+        "available_date": u.get("availableDate"),
+        "last_seen": datetime.now(timezone.utc).isoformat(),
+        "active": True,
+    }
+
+
+def supabase_request(config, method, path, body=None, extra_headers=None):
+    url = config["supabase_url"].rstrip("/") + path
+    headers = {
+        "apikey": config["supabase_service_key"],
+        "Authorization": f"Bearer {config['supabase_service_key']}",
+        "Content-Type": "application/json",
+    }
+    if extra_headers:
+        headers.update(extra_headers)
+    data = json.dumps(body).encode() if body is not None else None
+    req = urllib.request.Request(url, data=data, headers=headers, method=method)
+    with urllib.request.urlopen(req, timeout=20) as resp:
+        raw = resp.read()
+        return json.loads(raw) if raw else None
+
+
+def sync_to_supabase(config, units):
+    if not config.get("supabase_url") or not config.get("supabase_service_key"):
+        return
+
+    try:
+        rows = [unit_to_row(u) for u in units]
+        supabase_request(
+            config, "POST", "/rest/v1/listings", body=rows,
+            extra_headers={"Prefer": "resolution=merge-duplicates,return=minimal"},
+        )
+
+        current_ids = {r["id"] for r in rows}
+        active_rows = supabase_request(config, "GET", "/rest/v1/listings?select=id&active=eq.true") or []
+        delisted_ids = [r["id"] for r in active_rows if r["id"] not in current_ids]
+
+        if delisted_ids:
+            id_list = ",".join(delisted_ids)
+            supabase_request(
+                config, "PATCH", f"/rest/v1/listings?id=in.({id_list})",
+                body={"active": False}, extra_headers={"Prefer": "return=minimal"},
+            )
+        logging.info(
+            "supabase sync: %d rows upserted, %d marked delisted",
+            len(rows), len(delisted_ids),
+        )
+    except Exception as e:
+        logging.error("supabase sync failed: %s", e)
+
+
 def main():
     now_local = datetime.now(LOCAL_TZ)
     force_run = os.environ.get("FORCE_RUN", "").lower() == "true"
@@ -131,6 +196,8 @@ def main():
         return
 
     units = data.get("unitModels", [])
+    sync_to_supabase(config, units)
+
     qualifying = [
         u for u in units
         if u.get("price") is not None
