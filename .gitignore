@@ -4,5 +4,5 @@ monitor.log
 launchd.out.log
 launchd.err.log
 __pycache__/
-docs/config.js
 /nyc-housing-monitor/
+supabase/.temp/
