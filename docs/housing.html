@@ -18,11 +18,24 @@
   h1{font-family:Georgia,serif;font-size:26px;margin:0 0 4px;}
   .sub{color:var(--ink-soft);font-size:14px;margin:0;}
   .meta-line{font-size:13px;color:var(--ink-soft);margin:14px 0 14px;padding-top:14px;border-top:1px solid var(--line);}
+  .calc-panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px 16px;margin-bottom:16px;}
+  .calc-title{font-family:Georgia,serif;font-size:15px;margin:0 0 10px;}
+  .calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;}
+  .calc-field label{display:block;font-size:11.5px;color:var(--ink-soft);margin-bottom:4px;}
+  .calc-field input{width:100%;padding:8px 9px;border:1px solid var(--line);border-radius:6px;font-size:14px;background:var(--paper);color:var(--ink);}
+  .term-toggle{display:flex;gap:6px;}
+  .term-btn{flex:1;padding:8px 0;border:1px solid var(--line);border-radius:6px;background:var(--paper);font-size:13px;color:var(--ink-soft);cursor:pointer;text-align:center;}
+  .term-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .calc-note{font-size:11.5px;color:var(--ink-soft);margin-top:10px;line-height:1.5;}
   .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:12px;}
   .card-top{display:flex;justify-content:space-between;gap:10px;}
   .place{font-family:Georgia,serif;font-size:17px;margin:0 0 2px;}
   .price{font-family:Georgia,serif;font-size:19px;font-weight:bold;white-space:nowrap;color:var(--accent);}
   .facts{font-size:13.5px;color:var(--ink-soft);margin:10px 0 0;}
+  .mortgage-box{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-top:12px;display:flex;justify-content:space-between;gap:8px;font-size:12.5px;}
+  .mortgage-box .m-item{flex:1;}
+  .mortgage-box .m-label{color:var(--ink-soft);font-size:10.5px;margin-bottom:2px;}
+  .mortgage-box .m-value{font-weight:600;font-size:14px;}
   .card-bottom{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:10px;margin-top:12px;font-size:12px;}
   .view-link{color:var(--accent);text-decoration:none;border-bottom:1px solid currentColor;}
   .empty, .loading{text-align:center;padding:40px 20px;color:var(--ink-soft);font-size:14px;line-height:1.6;}
@@ -36,6 +49,22 @@
     <h1>For Sale</h1>
     <p class="sub">Houses, condos, and co-ops in a handful of Queens/Astoria/Brooklyn neighborhoods.</p>
   </header>
+
+  <div class="calc-panel">
+    <p class="calc-title">Mortgage assumptions</p>
+    <div class="calc-grid">
+      <div class="calc-field"><label>Down payment (%)</label><input type="number" id="downPct" value="20" min="0" max="100" step="1"></div>
+      <div class="calc-field"><label>Interest rate (%)</label><input type="number" id="rate" value="6.71" min="0" max="15" step="0.01"></div>
+      <div class="calc-field" style="grid-column:1 / -1;">
+        <label>Loan term</label>
+        <div class="term-toggle">
+          <div class="term-btn active" data-term="30" data-rate="6.71">30-year</div>
+          <div class="term-btn" data-term="15" data-rate="6.04">15-year</div>
+        </div>
+      </div>
+    </div>
+    <p class="calc-note">Rate defaults are the Freddie Mac PMMS national weekly average as of 09/03/2026 — edit to match your actual quote. P&amp;I only — no tax, insurance, or co-op maintenance / condo common charges. Co-op boards often require higher down payments than a bank would.</p>
+  </div>
 
   <div class="meta-line" id="countLine"></div>
 
@@ -52,7 +81,21 @@
 <script>
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+let currentListings = [];
+let calcState = { downPct: 20, rate: 6.71, term: 30 };
+
 function fmtPrice(n){ return '$' + Math.round(n).toLocaleString('en-US'); }
+
+function mortgageMath(price){
+  const downPct = Math.min(Math.max(calcState.downPct, 0), 100);
+  const down = price * (downPct/100);
+  const loan = price - down;
+  const monthlyRate = (calcState.rate/100)/12;
+  const n = calcState.term*12;
+  const payment = monthlyRate === 0 ? loan/n :
+    loan * (monthlyRate * Math.pow(1+monthlyRate, n)) / (Math.pow(1+monthlyRate, n) - 1);
+  return { down, loan, payment };
+}
 
 async function loadListings(){
   const { data, error } = await supabaseClient
@@ -65,10 +108,12 @@ async function loadListings(){
     return;
   }
   document.getElementById('loadingState').style.display = 'none';
-  render(data);
+  currentListings = data;
+  render();
 }
 
-function render(listings){
+function render(){
+  const listings = currentListings;
   document.getElementById('countLine').textContent = listings.length + (listings.length===1 ? ' listing' : ' listings');
   const list = document.getElementById('cardList');
   const empty = document.getElementById('emptyState');
@@ -86,6 +131,7 @@ function render(listings){
     if(l.beds != null) factsParts.push((l.beds===0 ? 'Studio' : l.beds + ' bd'));
     if(l.baths != null) factsParts.push(l.baths + ' ba');
     if(l.sqft) factsParts.push(l.sqft + ' ft²');
+    const m = mortgageMath(l.price);
     return `
       <div class="card">
         <div class="card-top">
@@ -93,6 +139,11 @@ function render(listings){
           <div class="price">${fmtPrice(l.price)}</div>
         </div>
         <div class="facts">${factsParts.join(' · ')}</div>
+        <div class="mortgage-box">
+          <div class="m-item"><div class="m-label">Down (${calcState.downPct}%)</div><div class="m-value">${fmtPrice(m.down)}</div></div>
+          <div class="m-item"><div class="m-label">Loan amount</div><div class="m-value">${fmtPrice(m.loan)}</div></div>
+          <div class="m-item"><div class="m-label">Est. P&amp;I / mo</div><div class="m-value">${fmtPrice(m.payment)}</div></div>
+        </div>
         <div class="card-bottom">
           <span></span>
           <a class="view-link" href="${l.source_url}" target="_blank">View on Redfin</a>
@@ -101,6 +152,19 @@ function render(listings){
     `;
   }).join('');
 }
+
+document.getElementById('downPct').addEventListener('input', e=>{ calcState.downPct = parseFloat(e.target.value)||0; render(); });
+document.getElementById('rate').addEventListener('input', e=>{ calcState.rate = parseFloat(e.target.value)||0; render(); });
+document.querySelectorAll('.term-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.term-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    calcState.term = parseInt(btn.dataset.term, 10);
+    calcState.rate = parseFloat(btn.dataset.rate);
+    document.getElementById('rate').value = calcState.rate;
+    render();
+  });
+});
 
 loadListings();
 </script>
