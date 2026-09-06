@@ -30,8 +30,12 @@
   .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:12px;}
   .card-top{display:flex;justify-content:space-between;gap:10px;}
   .place{font-family:Georgia,serif;font-size:17px;margin:0 0 2px;}
+  .type-tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:5px;margin-top:3px;background:var(--accent-tint);color:var(--accent);}
   .price{font-family:Georgia,serif;font-size:19px;font-weight:bold;white-space:nowrap;color:var(--accent);}
   .facts{font-size:13.5px;color:var(--ink-soft);margin:10px 0 0;}
+  .filter-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;}
+  .chip{flex:0 0 auto;padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);font-size:13px;color:var(--ink-soft);cursor:pointer;white-space:nowrap;}
+  .chip.active{background:var(--ink);color:var(--paper);border-color:var(--ink);}
   .mortgage-box{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-top:12px;display:flex;justify-content:space-between;gap:8px;font-size:12.5px;}
   .mortgage-box .m-item{flex:1;}
   .mortgage-box .m-label{color:var(--ink-soft);font-size:10.5px;margin-bottom:2px;}
@@ -66,6 +70,8 @@
     <p class="calc-note">Rate defaults are the Freddie Mac PMMS national weekly average as of 09/03/2026 — edit to match your actual quote. P&amp;I only — no tax, insurance, or co-op maintenance / condo common charges. Co-op boards often require higher down payments than a bank would.</p>
   </div>
 
+  <div class="filter-row" id="typeRow"></div>
+
   <div class="meta-line" id="countLine"></div>
 
   <div id="loadingState" class="loading">Loading listings…</div>
@@ -83,6 +89,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_
 
 let currentListings = [];
 let calcState = { downPct: 20, rate: 6.71, term: 30 };
+let filterState = { type: 'All' };
 
 function fmtPrice(n){ return '$' + Math.round(n).toLocaleString('en-US'); }
 
@@ -112,8 +119,25 @@ async function loadListings(){
   render();
 }
 
+function buildChips(row, options, key){
+  row.innerHTML = '';
+  options.forEach(opt=>{
+    const chip = document.createElement('div');
+    chip.className = 'chip' + (filterState[key]===opt ? ' active' : '');
+    chip.textContent = opt;
+    chip.onclick = ()=>{ filterState[key] = opt; render(); };
+    row.appendChild(chip);
+  });
+}
+
 function render(){
-  const listings = currentListings;
+  const typeOptions = ['All', ...new Set(currentListings.map(l=>l.property_type).filter(Boolean))];
+  buildChips(document.getElementById('typeRow'), typeOptions, 'type');
+
+  const listings = currentListings.filter(l=>{
+    if(filterState.type!=='All' && l.property_type!==filterState.type) return false;
+    return true;
+  });
   document.getElementById('countLine').textContent = listings.length + (listings.length===1 ? ' listing' : ' listings');
   const list = document.getElementById('cardList');
   const empty = document.getElementById('emptyState');
@@ -135,7 +159,10 @@ function render(){
     return `
       <div class="card">
         <div class="card-top">
-          <p class="place">${l.address}</p>
+          <div>
+            <p class="place">${l.address}</p>
+            ${l.property_type ? `<span class="type-tag">${l.property_type}</span>` : ''}
+          </div>
           <div class="price">${fmtPrice(l.price)}</div>
         </div>
         <div class="facts">${factsParts.join(' · ')}</div>
