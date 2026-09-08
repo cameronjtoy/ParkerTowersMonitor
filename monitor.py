@@ -255,9 +255,14 @@ def main():
         if ok:
             notified_spks.add(u["unitSpk"])
 
-    # keep previously-notified units still qualifying, plus any newly-notified ones;
-    # drop anything no longer qualifying so a relisted unit alerts again later
-    new_seen = {spk: True for spk in qualifying_spks if spk in seen or spk in notified_spks}
+    # keep a unit's "already notified" state as long as it's still present in the
+    # feed at all -- a price rising back above the threshold isn't a delisting,
+    # so it shouldn't reset notification state (that would cause a duplicate
+    # notification if the price dips back under threshold later). Only drop a
+    # unit once it's truly gone from the feed (not seen at all this run).
+    all_current_spks = {u["unitSpk"] for u in units}
+    new_seen = {spk: True for spk in seen if spk in all_current_spks}
+    new_seen.update({spk: True for spk in notified_spks})
     save_seen(new_seen)
 
     logging.info(
