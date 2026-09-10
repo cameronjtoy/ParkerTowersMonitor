@@ -12,7 +12,8 @@ create table if not exists listings (
   available_date text,
   first_seen timestamptz not null default now(),
   last_seen timestamptz not null default now(),
-  active boolean not null default true    -- flipped false when a run no longer finds this unit
+  active boolean not null default true,   -- flipped false after MISS_THRESHOLD consecutive misses
+  missed_count integer not null default 0 -- consecutive fetches this unit was absent from; grace period before delisting
 );
 
 alter table listings enable row level security;

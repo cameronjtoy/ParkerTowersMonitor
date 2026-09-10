@@ -128,6 +128,7 @@ def unit_to_row(u):
         "available_date": u.get("availableDate"),
         "last_seen": datetime.now(timezone.utc).isoformat(),
         "active": True,
+        "missed_count": 0,
     }
 
 
@@ -160,6 +161,20 @@ def fetch_subscriber_gateways(config):
         return []
 
 
+# The source feed normally returns ~19-21 units. If a fetch comes back with
+# suspiciously few, treat it as a likely transient/partial upstream response
+# rather than trusting it enough to count misses against everything absent.
+MIN_EXPECTED_UNITS_FOR_DELISTING = 10
+
+# A unit has to be missing from this many *consecutive* fetches before it's
+# actually marked delisted. Observed in practice: the upstream feed
+# occasionally omits a unit for a single run (transient/flaky response) even
+# though it's still genuinely listed -- delisting on the first miss caused a
+# real unit to incorrectly disappear from the site. This grace period filters
+# that out while still delisting units that are actually gone.
+MISS_THRESHOLD = 2
+
+
 def sync_to_supabase(config, units):
     if not config.get("supabase_url") or not config.get("supabase_service_key"):
         return
@@ -171,19 +186,33 @@ def sync_to_supabase(config, units):
             extra_headers={"Prefer": "resolution=merge-duplicates,return=minimal"},
         )
 
-        current_ids = {r["id"] for r in rows}
-        active_rows = supabase_request(config, "GET", "/rest/v1/listings?select=id&active=eq.true") or []
-        delisted_ids = [r["id"] for r in active_rows if r["id"] not in current_ids]
+        newly_delisted = 0
+        if len(units) >= MIN_EXPECTED_UNITS_FOR_DELISTING:
+            current_ids = {r["id"] for r in rows}
+            active_rows = supabase_request(
+                config, "GET", "/rest/v1/listings?select=id,missed_count&active=eq.true"
+            ) or []
+            missing_rows = [r for r in active_rows if r["id"] not in current_ids]
 
-        if delisted_ids:
-            id_list = ",".join(delisted_ids)
-            supabase_request(
-                config, "PATCH", f"/rest/v1/listings?id=in.({id_list})",
-                body={"active": False}, extra_headers={"Prefer": "return=minimal"},
+            for r in missing_rows:
+                new_missed = (r.get("missed_count") or 0) + 1
+                body = {"missed_count": new_missed}
+                if new_missed >= MISS_THRESHOLD:
+                    body["active"] = False
+                    newly_delisted += 1
+                supabase_request(
+                    config, "PATCH", f"/rest/v1/listings?id=eq.{r['id']}",
+                    body=body, extra_headers={"Prefer": "return=minimal"},
+                )
+        else:
+            logging.warning(
+                "fetch returned only %d units (below sanity floor of %d) -- skipping delisting checks this run",
+                len(units), MIN_EXPECTED_UNITS_FOR_DELISTING,
             )
+
         logging.info(
-            "supabase sync: %d rows upserted, %d marked delisted",
-            len(rows), len(delisted_ids),
+            "supabase sync: %d rows upserted, %d newly marked delisted",
+            len(rows), newly_delisted,
         )
     except Exception as e:
         logging.error("supabase sync failed: %s", e)
