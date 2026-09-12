@@ -18,7 +18,16 @@ CONFIG_PATH = BASE_DIR / "config.json"
 STATE_PATH = BASE_DIR / "seen_units.json"
 LOG_PATH = BASE_DIR / "monitor.log"
 
-API_URL = "https://units.stuytown.com/api/units"
+
+# The endpoint paginates and silently defaults to itemsOnPage=21 -- with no
+# page-size param it was only ever returning the cheapest 21 units across the
+# *entire* portfolio (Stuy Town/PCV/Parker Towers/Kips Bay/8 Spruce combined),
+# not "all currently available units". That caused real, still-listed units
+# to drop off the page whenever pricing shuffled them out of the global top
+# 21 and get falsely marked delisted. Full portfolio inventory is ~238 units;
+# itemsOnPage is set well above that so every property's full inventory
+# always comes back in one page.
+API_URL = "https://units.stuytown.com/api/units?page=0&itemsOnPage=500"
 USER_AGENT = (
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
     "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36"
@@ -161,10 +170,11 @@ def fetch_subscriber_gateways(config):
         return []
 
 
-# The source feed normally returns ~19-21 units. If a fetch comes back with
-# suspiciously few, treat it as a likely transient/partial upstream response
-# rather than trusting it enough to count misses against everything absent.
-MIN_EXPECTED_UNITS_FOR_DELISTING = 10
+# The source feed normally returns ~230-240 units across the whole portfolio.
+# If a fetch comes back with suspiciously few, treat it as a likely
+# transient/partial upstream response rather than trusting it enough to count
+# misses against everything absent.
+MIN_EXPECTED_UNITS_FOR_DELISTING = 150
 
 # A unit has to be missing from this many *consecutive* fetches before it's
 # actually marked delisted. Observed in practice: the upstream feed
