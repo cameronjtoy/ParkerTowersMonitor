@@ -150,6 +150,26 @@ function showSignupMsg(text, ok){
   el.className = 'signup-msg ' + (ok ? 'ok' : 'err');
 }
 
+// Pre-fill carrier + existing thresholds when a returning number is entered,
+// so editing (e.g. changing just the 2BD ceiling) doesn't blank out the
+// other bed counts -- the save below overwrites the whole thresholds object.
+async function loadExistingSettings(){
+  const phone = normalizePhone(document.getElementById('phoneInput').value);
+  if(phone.length !== 10) return;
+  const { data, error } = await supabaseClient
+    .from('subscribers')
+    .select('carrier,thresholds')
+    .eq('phone_number', phone)
+    .maybeSingle();
+  if(error || !data) return;
+  if(data.carrier) document.getElementById('carrierInput').value = data.carrier;
+  Object.entries(THRESHOLD_FIELDS).forEach(([bedKey, inputId])=>{
+    const val = (data.thresholds || {})[bedKey];
+    document.getElementById(inputId).value = val != null ? val : '';
+  });
+  showSignupMsg('Loaded your existing settings — edit and save to update.', true);
+}
+
 // Bedroom count -> threshold input id. "3" covers 3+ bedrooms, matching
 // monitor.py's threshold_bed_key (min(bedrooms, 3)).
 const THRESHOLD_FIELDS = { '0': 'thresholdStudio', '1': 'threshold1bd', '2': 'threshold2bd', '3': 'threshold3bd' };
@@ -310,6 +330,7 @@ function render(){
 
 document.getElementById('delistedToggle').onclick = ()=>{ state.showDelisted = !state.showDelisted; render(); };
 document.getElementById('subscribeBtn').onclick = subscribe;
+document.getElementById('phoneInput').addEventListener('blur', loadExistingSettings);
 document.getElementById('unsubscribeBtn').onclick = unsubscribe;
 document.getElementById('unsubscribeToggle').onclick = ()=>{
   const row = document.getElementById('unsubscribeRow');
