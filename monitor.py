@@ -113,11 +113,12 @@ def send_email(config, subject, body):
         server.sendmail(config["gmail_address"], [config["notify_email"]], msg.as_string())
 
 
-def send_sms(config, body):
+def send_sms(config, body, recipients=None):
     msg = MIMEText(body)
     msg["Subject"] = ""
     msg["From"] = config["gmail_address"]
-    recipients = config["sms_gateway_addresses"]
+    if recipients is None:
+        recipients = config["sms_gateway_addresses"]
     msg["To"] = ", ".join(recipients)
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
         server.login(config["gmail_address"], config["gmail_app_password"])
@@ -157,17 +158,84 @@ def supabase_request(config, method, path, body=None, extra_headers=None):
         return json.loads(raw) if raw else None
 
 
-def fetch_subscriber_gateways(config):
+def threshold_bed_key(bedrooms):
+    # "0" = studio, "3" covers 3+ bedrooms (matches the docs/index.html signup form).
+    if bedrooms is None:
+        return None
+    return str(min(int(bedrooms), 3))
+
+
+def notify_subscribers_per_threshold(config, units):
     if not config.get("supabase_url") or not config.get("supabase_service_key"):
-        return []
+        return
+
     try:
-        rows = supabase_request(
-            config, "GET", "/rest/v1/subscribers?select=gateway_email&active=eq.true"
+        subscribers = supabase_request(
+            config, "GET",
+            "/rest/v1/subscribers?select=id,gateway_email,thresholds&active=eq.true",
         ) or []
-        return [r["gateway_email"] for r in rows]
     except Exception as e:
         logging.error("fetching subscribers failed: %s", e)
-        return []
+        return
+
+    # A subscriber with no thresholds set hasn't configured any bed count yet --
+    # nothing to alert them on.
+    subscribers = [s for s in subscribers if s.get("thresholds")]
+    if not subscribers:
+        return
+
+    subscriber_ids = ",".join(s["id"] for s in subscribers)
+    try:
+        existing = supabase_request(
+            config, "GET",
+            f"/rest/v1/subscriber_notifications?select=subscriber_id,unit_id&subscriber_id=in.({subscriber_ids})",
+        ) or []
+    except Exception as e:
+        logging.error("fetching subscriber_notifications failed: %s", e)
+        return
+    already_notified = {(r["subscriber_id"], r["unit_id"]) for r in existing}
+
+    sent = 0
+    for u in units:
+        price = u.get("price")
+        bed_key = threshold_bed_key(u.get("bedrooms"))
+        if price is None or bed_key is None:
+            continue
+        unit_id = u["unitSpk"]
+        property_name = (u.get("property") or {}).get("name", "Apartment")
+
+        for s in subscribers:
+            threshold = s["thresholds"].get(bed_key)
+            if threshold is None or price >= threshold:
+                continue
+            if (s["id"], unit_id) in already_notified:
+                continue
+            try:
+                send_sms(
+                    config,
+                    f"{property_name} unit {u.get('unitNumber')} ${price}/mo now available",
+                    recipients=[s["gateway_email"]],
+                )
+            except Exception as e:
+                logging.error(
+                    "sms send failed for subscriber %s, unit %s: %s", s["id"], unit_id, e
+                )
+                continue
+            try:
+                supabase_request(
+                    config, "POST", "/rest/v1/subscriber_notifications?on_conflict=subscriber_id,unit_id",
+                    body={"subscriber_id": s["id"], "unit_id": unit_id},
+                    extra_headers={"Prefer": "resolution=merge-duplicates,return=minimal"},
+                )
+            except Exception as e:
+                logging.error(
+                    "recording subscriber_notification failed for %s/%s: %s", s["id"], unit_id, e
+                )
+                continue
+            sent += 1
+
+    if sent:
+        logging.info("sent %d per-threshold subscriber notification(s)", sent)
 
 
 # The source feed normally returns ~230-240 units across the whole portfolio.
@@ -241,11 +309,6 @@ def main():
     config = load_config()
     threshold = config.get("price_threshold", 2200)
 
-    subscriber_gateways = fetch_subscriber_gateways(config)
-    if subscriber_gateways:
-        config["sms_gateway_addresses"] = list(set(config["sms_gateway_addresses"]) | set(subscriber_gateways))
-        logging.info("added %d subscriber(s) from Supabase", len(subscriber_gateways))
-
     try:
         data = fetch_units()
     except Exception as e:
@@ -254,6 +317,7 @@ def main():
 
     units = data.get("unitModels", [])
     sync_to_supabase(config, units)
+    notify_subscribers_per_threshold(config, units)
 
     qualifying = [
         u for u in units

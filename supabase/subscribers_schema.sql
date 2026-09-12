@@ -31,3 +31,23 @@ create policy "subscribers_all_access"
   to anon, authenticated
   using (true)
   with check (true);
+
+-- Per-bedroom-count price ceilings, e.g. {"0": 1700, "1": 2000, "2": 2400}.
+-- Key is bedroom count as text ("0" = studio); "3" is used for 3+ bedrooms.
+-- A bedroom count with no key is not something this subscriber wants texts
+-- about. Empty object (the default) means "not yet configured" -- monitor.py
+-- treats that as no alerts until the subscriber sets at least one threshold.
+alter table subscribers add column if not exists thresholds jsonb not null default '{}'::jsonb;
+
+-- Tracks which (subscriber, unit) pairs have already been texted, since
+-- qualification is now per-subscriber (different thresholds) rather than one
+-- global list -- the old seen_units.json can't dedupe this on its own.
+create table if not exists subscriber_notifications (
+  subscriber_id uuid not null references subscribers(id) on delete cascade,
+  unit_id text not null,
+  notified_at timestamptz not null default now(),
+  primary key (subscriber_id, unit_id)
+);
+
+alter table subscriber_notifications enable row level security;
+-- No policies: only monitor.py (service_role key, bypasses RLS) touches this table.

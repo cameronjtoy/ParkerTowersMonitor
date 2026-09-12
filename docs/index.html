@@ -59,13 +59,21 @@
 
   <div class="signup-panel">
     <p class="signup-title">Get texted for new listings</p>
-    <p class="signup-sub">Add your number to get a text whenever a new unit under the threshold appears. No confirmation step — anyone with this link can add or remove a number.</p>
+    <p class="signup-sub">Add your number and set your own price ceiling per bedroom count — leave a field blank to skip texts for that size. No confirmation step — anyone with this link can add, edit, or remove a number.</p>
     <div class="signup-row">
       <input type="tel" id="phoneInput" placeholder="Phone number">
       <select id="carrierInput">
         <option value="">Carrier…</option>
       </select>
-      <button id="subscribeBtn">Text me</button>
+    </div>
+    <div class="signup-row" style="margin-top:8px;">
+      <input type="number" id="thresholdStudio" placeholder="Studio max $" min="0">
+      <input type="number" id="threshold1bd" placeholder="1BD max $" min="0">
+      <input type="number" id="threshold2bd" placeholder="2BD max $" min="0">
+      <input type="number" id="threshold3bd" placeholder="3+BD max $" min="0">
+    </div>
+    <div class="signup-row" style="margin-top:8px;">
+      <button id="subscribeBtn">Save & text me</button>
     </div>
     <p class="signup-msg" id="signupMsg"></p>
     <span class="signup-toggle" id="unsubscribeToggle">Remove my number</span>
@@ -142,6 +150,22 @@ function showSignupMsg(text, ok){
   el.className = 'signup-msg ' + (ok ? 'ok' : 'err');
 }
 
+// Bedroom count -> threshold input id. "3" covers 3+ bedrooms, matching
+// monitor.py's threshold_bed_key (min(bedrooms, 3)).
+const THRESHOLD_FIELDS = { '0': 'thresholdStudio', '1': 'threshold1bd', '2': 'threshold2bd', '3': 'threshold3bd' };
+
+function readThresholds(){
+  const thresholds = {};
+  Object.entries(THRESHOLD_FIELDS).forEach(([bedKey, inputId])=>{
+    const raw = document.getElementById(inputId).value;
+    if(raw !== ''){
+      const n = Number(raw);
+      if(Number.isFinite(n) && n > 0) thresholds[bedKey] = n;
+    }
+  });
+  return thresholds;
+}
+
 async function subscribe(){
   const phone = normalizePhone(document.getElementById('phoneInput').value);
   const carrier = document.getElementById('carrierInput').value;
@@ -153,10 +177,15 @@ async function subscribe(){
     showSignupMsg('Select a carrier.', false);
     return;
   }
+  const thresholds = readThresholds();
+  if(Object.keys(thresholds).length === 0){
+    showSignupMsg('Set a max price for at least one bedroom count.', false);
+    return;
+  }
   const gatewayEmail = phone + '@' + CARRIER_GATEWAYS[carrier];
   const { error } = await supabaseClient
     .from('subscribers')
-    .upsert({ phone_number: phone, carrier, gateway_email: gatewayEmail, active: true }, { onConflict: 'gateway_email' });
+    .upsert({ phone_number: phone, carrier, gateway_email: gatewayEmail, active: true, thresholds }, { onConflict: 'gateway_email' });
   if(error){
     showSignupMsg('Could not add number: ' + error.message, false);
     return;
@@ -164,6 +193,7 @@ async function subscribe(){
   showSignupMsg("You're subscribed — texts start on the next check.", true);
   document.getElementById('phoneInput').value = '';
   document.getElementById('carrierInput').value = '';
+  Object.values(THRESHOLD_FIELDS).forEach(id => document.getElementById(id).value = '');
 }
 
 async function unsubscribe(){
