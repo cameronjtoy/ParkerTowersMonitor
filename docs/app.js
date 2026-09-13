@@ -248,6 +248,36 @@ function renderRentals(){
   }).join('');
 }
 
+// Soft gate on the signup form. The password itself is never sent to the
+// client -- check_signup_password() runs server-side (security definer,
+// see supabase/app_settings_schema.sql) and only returns true/false.
+async function tryUnlockSignup(){
+  const entered = document.getElementById('signupPasswordInput').value;
+  const btn = document.getElementById('signupUnlockBtn');
+  btn.disabled = true;
+  const { data, error } = await supabaseClient.rpc('check_signup_password', { input: entered });
+  btn.disabled = false;
+  if(!error && data === true){
+    document.getElementById('signupLocked').style.display = 'none';
+    document.getElementById('signupUnlocked').style.display = 'block';
+    try{ sessionStorage.setItem('signupUnlocked', '1'); }catch(e){}
+  } else {
+    const msg = document.getElementById('signupLockMsg');
+    msg.textContent = 'Wrong password.';
+    msg.className = 'signup-msg err';
+  }
+}
+document.getElementById('signupUnlockBtn').onclick = tryUnlockSignup;
+document.getElementById('signupPasswordInput').addEventListener('keydown', e=>{
+  if(e.key === 'Enter') tryUnlockSignup();
+});
+try{
+  if(sessionStorage.getItem('signupUnlocked') === '1'){
+    document.getElementById('signupLocked').style.display = 'none';
+    document.getElementById('signupUnlocked').style.display = 'block';
+  }
+}catch(e){}
+
 document.getElementById('delistedToggle').onclick = ()=>{ rentalState.showDelisted = !rentalState.showDelisted; renderRentals(); };
 document.getElementById('subscribeBtn').onclick = subscribe;
 document.getElementById('phoneInput').addEventListener('blur', loadExistingSettings);

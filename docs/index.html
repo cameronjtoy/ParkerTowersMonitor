@@ -23,28 +23,39 @@
 
   <section id="tab-rentals" class="tab-panel">
     <div class="signup-panel">
-      <p class="signup-title">Get texted for new listings</p>
-      <p class="signup-sub">Add your number and set your own price ceiling per bedroom count — leave a field blank to skip texts for that size. No confirmation step — anyone with this link can add, edit, or remove a number.</p>
-      <div class="signup-row">
-        <input type="tel" id="phoneInput" placeholder="Phone number">
-        <select id="carrierInput">
-          <option value="">Carrier…</option>
-        </select>
+      <div id="signupLocked">
+        <p class="signup-title">Get texted for new listings</p>
+        <p class="signup-sub">Enter the password to add or edit a number.</p>
+        <div class="signup-row">
+          <input type="password" id="signupPasswordInput" placeholder="Password">
+          <button id="signupUnlockBtn">Unlock</button>
+        </div>
+        <p class="signup-msg" id="signupLockMsg"></p>
       </div>
-      <div class="signup-row" style="margin-top:8px;">
-        <input type="number" id="thresholdStudio" placeholder="Studio max $" min="0">
-        <input type="number" id="threshold1bd" placeholder="1BD max $" min="0">
-        <input type="number" id="threshold2bd" placeholder="2BD max $" min="0">
-        <input type="number" id="threshold3bd" placeholder="3+BD max $" min="0">
-      </div>
-      <div class="signup-row" style="margin-top:8px;">
-        <button id="subscribeBtn">Save &amp; text me</button>
-      </div>
-      <p class="signup-msg" id="signupMsg"></p>
-      <span class="signup-toggle" id="unsubscribeToggle">Remove my number</span>
-      <div class="signup-row" id="unsubscribeRow" style="display:none;margin-top:8px;">
-        <input type="tel" id="unsubPhoneInput" placeholder="Phone number to remove">
-        <button class="secondary" id="unsubscribeBtn">Remove</button>
+      <div id="signupUnlocked" style="display:none;">
+        <p class="signup-title">Get texted for new listings</p>
+        <p class="signup-sub">Add your number and set your own price ceiling per bedroom count — leave a field blank to skip texts for that size.</p>
+        <div class="signup-row">
+          <input type="tel" id="phoneInput" placeholder="Phone number">
+          <select id="carrierInput">
+            <option value="">Carrier…</option>
+          </select>
+        </div>
+        <div class="signup-row" style="margin-top:8px;">
+          <input type="number" id="thresholdStudio" placeholder="Studio max $" min="0">
+          <input type="number" id="threshold1bd" placeholder="1BD max $" min="0">
+          <input type="number" id="threshold2bd" placeholder="2BD max $" min="0">
+          <input type="number" id="threshold3bd" placeholder="3+BD max $" min="0">
+        </div>
+        <div class="signup-row" style="margin-top:8px;">
+          <button id="subscribeBtn">Save &amp; text me</button>
+        </div>
+        <p class="signup-msg" id="signupMsg"></p>
+        <span class="signup-toggle" id="unsubscribeToggle">Remove my number</span>
+        <div class="signup-row" id="unsubscribeRow" style="display:none;margin-top:8px;">
+          <input type="tel" id="unsubPhoneInput" placeholder="Phone number to remove">
+          <button class="secondary" id="unsubscribeBtn">Remove</button>
+        </div>
       </div>
     </div>
 
