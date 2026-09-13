@@ -22,7 +22,7 @@ const TAB_META = {
   'rentals': { title: 'Rental Monitor', sub: 'Live availability across the Stuyvesant Town / Parker Towers / Kips Bay Court / Peter Cooper Village portfolio.' },
   'for-sale': { title: 'For Sale', sub: 'Houses, condos, and co-ops in a handful of Queens/Astoria/Brooklyn neighborhoods.' },
   'savings': { title: 'Savings Calculator', sub: 'Project how a monthly contribution grows toward a goal.' },
-  'analytics': { title: 'Building Analytics', sub: 'Multi-building complexes registered with NYC HPD, across the same Queens/Brooklyn neighborhoods tracked on the For Sale tab.' },
+  'analytics': { title: 'Building Analytics', sub: 'Income-restricted housing units across the same Queens/Brooklyn neighborhoods tracked on the For Sale tab.' },
 };
 
 function showTab(name){
@@ -499,107 +499,10 @@ function renderSavings(){
   document.getElementById(id).addEventListener('input', renderSavings);
 });
 
-/* ---------------- Analytics tab ---------------- */
-// Static data (see analyze_hpd_buildings.py) -- no DB, no live queries.
+/* ---------------- Analytics tab: income-restricted housing (Low/Moderate Income only) ---------------- */
+// Static data (see analyze_affordable_housing.py) -- no DB, no live queries.
 function fmtNum(n){ return n.toLocaleString('en-US'); }
 
-let hpdData = { neighborhoods: [], complexes: [] };
-let analyticsFilterState = { neighborhood: 'All' };
-
-function renderDashboard(){
-  const totalBuildings = hpdData.neighborhoods.reduce((s,n)=>s+n.buildings, 0);
-  const totalComplexes = hpdData.complexes.length;
-  const programTotals = {};
-  hpdData.neighborhoods.forEach(n=>{
-    Object.entries(n.management_programs).forEach(([prog, count])=>{
-      programTotals[prog] = (programTotals[prog] || 0) + count;
-    });
-  });
-  const subsidized = Object.entries(programTotals)
-    .filter(([prog])=> prog !== 'PVT')
-    .reduce((s,[,c])=>s+c, 0);
-
-  const dash = document.getElementById('dashSection');
-  dash.innerHTML = `
-    <div class="dash-grid">
-      <div class="stat-card"><div class="stat-value">${fmtNum(totalBuildings)}</div><div class="stat-label">Registered buildings tracked</div></div>
-      <div class="stat-card"><div class="stat-value">${fmtNum(totalComplexes)}</div><div class="stat-label">Multi-building complexes</div></div>
-      <div class="stat-card"><div class="stat-value">${fmtNum(subsidized)}</div><div class="stat-label">Buildings under a non-private program (NYCHA, Mitchell-Lama, etc.)</div></div>
-      <div class="stat-card"><div class="stat-value">${fmtNum(hpdData.neighborhoods.length)}</div><div class="stat-label">Neighborhoods covered</div></div>
-    </div>
-    <table class="neighborhood-table">
-      <thead><tr><th>Neighborhood</th><th>Buildings</th><th>Complexes</th><th>Non-private</th></tr></thead>
-      <tbody>
-        ${hpdData.neighborhoods
-          .slice()
-          .sort((a,b)=> b.buildings - a.buildings)
-          .map(n=>{
-            const nonPvt = Object.entries(n.management_programs).filter(([p])=>p!=='PVT').reduce((s,[,c])=>s+c,0);
-            return `<tr><td>${n.neighborhood}</td><td>${fmtNum(n.buildings)}</td><td>${n.complexes}</td><td>${fmtNum(nonPvt)}</td></tr>`;
-          }).join('')}
-      </tbody>
-    </table>
-  `;
-}
-
-function renderComplexes(){
-  const neighborhoodOptions = ['All', ...new Set(hpdData.complexes.map(c=>c.neighborhood))].sort((a,b)=> a==='All' ? -1 : b==='All' ? 1 : a.localeCompare(b));
-  buildChips(document.getElementById('neighborhoodRow'), neighborhoodOptions, analyticsFilterState, 'neighborhood', renderComplexes);
-
-  const filtered = hpdData.complexes.filter(c=>{
-    if(analyticsFilterState.neighborhood!=='All' && c.neighborhood!==analyticsFilterState.neighborhood) return false;
-    return true;
-  });
-
-  document.getElementById('complexCountLine').textContent = filtered.length + (filtered.length===1 ? ' complex' : ' complexes');
-
-  const grid = document.getElementById('complexGrid');
-  const empty = document.getElementById('complexEmpty');
-  if(filtered.length===0){
-    grid.innerHTML = '';
-    empty.style.display = 'block';
-    empty.textContent = 'No multi-building complexes found for that neighborhood in this data.';
-    return;
-  }
-  empty.style.display = 'none';
-
-  grid.innerHTML = filtered.map(c=>{
-    const isNycha = c.management_program === 'NYCHA';
-    // Each address links to NYC DOF's Property Information Portal for that
-    // lot (BBL) -- an official record to cross-check the building against.
-    const addrLinks = c.buildings.map(b=>
-      b.portal_url ? `<a class="view-link" href="${b.portal_url}" target="_blank" rel="noopener">${b.address}</a>` : b.address
-    ).join(', ') + (c.addresses_truncated ? ', …' : '');
-    return `
-      <div class="complex-card">
-        <div class="card-top">
-          <div>
-            <p class="place">${c.building_count} buildings</p>
-            <span class="type-tag ${isNycha ? 'badge-nycha' : ''}">${c.management_program}</span>
-          </div>
-        </div>
-        <div class="facts">${c.neighborhood}${c.avg_stories ? ' · avg ' + c.avg_stories + ' stories' : ''}</div>
-        <div class="complex-addr">${addrLinks}</div>
-      </div>
-    `;
-  }).join('');
-}
-
-function loadAnalytics(){
-  fetch('hpd_complexes.json')
-    .then(r=>r.json())
-    .then(data=>{
-      hpdData = data;
-      document.getElementById('analyticsLoading').style.display = 'none';
-      renderDashboard();
-      renderComplexes();
-    })
-    .catch(err=>{
-      document.getElementById('analyticsLoading').textContent = 'Could not load building data: ' + err.message;
-    });
-}
-
-/* ---------------- Income-restricted housing (Low/Moderate Income only) ---------------- */
 let affordData = { tiers: [], neighborhoods: [], buildings: [] };
 let affordFilterState = { neighborhood: 'All' };
 
@@ -694,6 +597,5 @@ populateCarrierOptions();
 loadRentalListings();
 loadSaleListings();
 renderSavings();
-loadAnalytics();
 loadAffordableHousing();
 showTab(location.hash.slice(1) || 'rentals');
