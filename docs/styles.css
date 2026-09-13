@@ -73,7 +73,7 @@
   .savings-table tr:last-child td{border-bottom:none;font-weight:600;}
   .savings-table-wrap{max-height:320px;overflow-y:auto;}
 
-  .analytics-page{ --accent:#3B5B7C; --accent-tint:#E3E9EE; }
+  .tab-analytics{ --accent:#3B5B7C; --accent-tint:#E3E9EE; }
   .dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
   .stat-card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;}
   .stat-value{font-family:Georgia,serif;font-size:22px;color:var(--accent);}

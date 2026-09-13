@@ -19,6 +19,7 @@
     <button class="tab-btn" data-tab="rentals">Rentals</button>
     <button class="tab-btn" data-tab="for-sale">For Sale</button>
     <button class="tab-btn" data-tab="savings">Savings Calculator</button>
+    <button class="tab-btn" data-tab="analytics">Analytics</button>
   </div>
 
   <section id="tab-rentals" class="tab-panel">
@@ -105,7 +106,7 @@
     <div class="empty" id="saleEmpty" style="display:none;"></div>
 
     <footer>
-      Refreshed on demand (no fixed schedule). Sourced from Redfin — not affiliated. See also: <a href="analytics.html">building analytics</a> for these neighborhoods.
+      Refreshed on demand (no fixed schedule). Sourced from Redfin — not affiliated.
     </footer>
   </section>
 
@@ -122,6 +123,26 @@
     </div>
 
     <div id="savingsResult"></div>
+  </section>
+
+  <section id="tab-analytics" class="tab-panel tab-analytics" hidden>
+    <div id="dashSection"></div>
+
+    <div class="filters" style="position:static;border-bottom:none;padding:0;margin-bottom:14px;">
+      <div class="filter-row" id="neighborhoodRow"></div>
+    </div>
+
+    <div class="meta-line">
+      <span id="complexCountLine"></span>
+    </div>
+
+    <div id="analyticsLoading" class="loading">Loading building data…</div>
+    <div class="complex-grid" id="complexGrid"></div>
+    <div class="empty" id="complexEmpty" style="display:none;"></div>
+
+    <footer>
+      Generated on demand from a local HPD data export (see analyze_hpd_buildings.py) — not on a fixed schedule. "Complex" here means 2+ buildings sharing one HPD registration. Not affiliated with HPD.
+    </footer>
   </section>
 </div>
 
