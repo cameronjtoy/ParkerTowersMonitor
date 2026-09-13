@@ -71,6 +71,7 @@
   </div>
 
   <div class="filter-row" id="typeRow"></div>
+  <div class="filter-row" id="cityRow"></div>
 
   <div class="meta-line" id="countLine"></div>
 
@@ -89,7 +90,16 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_
 
 let currentListings = [];
 let calcState = { downPct: 20, rate: 6.71, term: 30 };
-let filterState = { type: 'All' };
+let filterState = { type: 'All', city: 'All' };
+
+// Address format is "<street>, <city/neighborhood>, NY <zip>" -- the middle
+// segment is the Redfin-reported city/neighborhood (e.g. "Bayside",
+// "Forest Hills", "Brooklyn", "Long Island City"), which is the closest
+// thing to a borough/neighborhood filter without a dedicated column.
+function cityOf(address){
+  const parts = address.split(',');
+  return parts.length >= 2 ? parts[1].trim() : null;
+}
 
 function fmtPrice(n){ return '$' + Math.round(n).toLocaleString('en-US'); }
 
@@ -164,8 +174,12 @@ function render(){
   const typeOptions = ['All', ...new Set(currentListings.map(l=>l.property_type).filter(Boolean))];
   buildChips(document.getElementById('typeRow'), typeOptions, 'type');
 
+  const cityOptions = ['All', ...new Set(currentListings.map(l=>cityOf(l.address)).filter(Boolean))].sort((a,b)=> a==='All' ? -1 : b==='All' ? 1 : a.localeCompare(b));
+  buildChips(document.getElementById('cityRow'), cityOptions, 'city');
+
   const listings = currentListings.filter(l=>{
     if(filterState.type!=='All' && l.property_type!==filterState.type) return false;
+    if(filterState.city!=='All' && cityOf(l.address)!==filterState.city) return false;
     return true;
   });
   document.getElementById('countLine').textContent = listings.length + (listings.length===1 ? ' listing' : ' listings');
