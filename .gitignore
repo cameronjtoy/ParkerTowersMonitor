@@ -6,3 +6,4 @@ launchd.err.log
 __pycache__/
 /nyc-housing-monitor/
 supabase/.temp/
+*.csv

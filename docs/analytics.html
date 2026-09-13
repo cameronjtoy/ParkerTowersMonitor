@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Building Analytics</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="wrap analytics-page">
+  <header>
+    <h1>Building Analytics</h1>
+    <p class="sub">Multi-building complexes registered with NYC HPD, across the same Queens/Brooklyn neighborhoods tracked on the <a href="index.html#for-sale">For Sale tab</a>. Source: NYC Open Data, "Buildings Subject to HPD Jurisdiction."</p>
+  </header>
+
+  <div id="dashSection"></div>
+
+  <div class="filters" style="position:static;border-bottom:none;padding:0;margin-bottom:14px;">
+    <div class="filter-row" id="neighborhoodRow"></div>
+  </div>
+
+  <div class="meta-line">
+    <span id="complexCountLine"></span>
+  </div>
+
+  <div id="loading" class="loading">Loading building data…</div>
+  <div class="complex-grid" id="complexGrid"></div>
+  <div class="empty" id="complexEmpty" style="display:none;"></div>
+
+  <footer>
+    Generated on demand from a local HPD data export (see analyze_hpd_buildings.py) — not on a fixed schedule. "Complex" here means 2+ buildings sharing one HPD registration. Not affiliated with HPD.
+  </footer>
+</div>
+
+<script src="analytics.js"></script>
+</body>
+</html>

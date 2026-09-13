@@ -72,3 +72,18 @@
   .savings-table td{text-align:right;padding:6px;border-bottom:1px solid var(--line);}
   .savings-table tr:last-child td{border-bottom:none;font-weight:600;}
   .savings-table-wrap{max-height:320px;overflow-y:auto;}
+
+  .analytics-page{ --accent:#3B5B7C; --accent-tint:#E3E9EE; }
+  .dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+  .stat-card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;}
+  .stat-value{font-family:Georgia,serif;font-size:22px;color:var(--accent);}
+  .stat-label{font-size:11.5px;color:var(--ink-soft);margin-top:2px;}
+  .neighborhood-table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:18px;}
+  .neighborhood-table th{text-align:left;color:var(--ink-soft);font-weight:500;font-size:11px;padding:5px 6px;border-bottom:1px solid var(--line);}
+  .neighborhood-table th:not(:first-child), .neighborhood-table td:not(:first-child){text-align:right;}
+  .neighborhood-table td{padding:6px;border-bottom:1px solid var(--line);}
+  .complex-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media (max-width:480px){ .complex-grid{grid-template-columns:1fr;} }
+  .complex-card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;}
+  .complex-addr{font-size:12.5px;color:var(--ink-soft);margin-top:8px;line-height:1.5;}
+  .badge-nycha{background:#EFE0D0;color:#8A5A2A;}
