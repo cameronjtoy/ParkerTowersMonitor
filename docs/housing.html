@@ -104,6 +104,8 @@ function mortgageMath(price){
   return { down, loan, payment };
 }
 
+let priceHistoryByListing = {};
+
 async function loadListings(){
   const { data, error } = await supabaseClient
     .from('housing_listings')
@@ -114,9 +116,37 @@ async function loadListings(){
     document.getElementById('loadingState').textContent = 'Could not load listings: ' + error.message;
     return;
   }
-  document.getElementById('loadingState').style.display = 'none';
   currentListings = data;
+
+  const { data: history, error: historyError } = await supabaseClient
+    .from('housing_price_history')
+    .select('listing_id,sale_date,sale_price')
+    .order('sale_date', { ascending: false });
+  if(!historyError && history){
+    priceHistoryByListing = {};
+    history.forEach(h=>{
+      if(!priceHistoryByListing[h.listing_id]) priceHistoryByListing[h.listing_id] = [];
+      priceHistoryByListing[h.listing_id].push(h);
+    });
+  }
+
+  document.getElementById('loadingState').style.display = 'none';
   render();
+}
+
+// Annualized appreciation from the most recent known prior sale to the
+// current asking price. Sourced from NYC's public ACRIS deed records (see
+// fetch_price_history.py) -- co-ops usually have no entry here, since a
+// co-op sale is a share transfer, not a recorded real-property deed.
+function appreciationInfo(listing){
+  const sales = priceHistoryByListing[listing.id];
+  if(!sales || sales.length === 0) return null;
+  const last = sales[0];
+  const years = (Date.now() - new Date(last.sale_date).getTime()) / (365.25 * 24 * 3600 * 1000);
+  if(years < 0.1) return null;
+  const rate = (Math.pow(listing.price / last.sale_price, 1/years) - 1) * 100;
+  const saleYear = new Date(last.sale_date).getFullYear();
+  return { lastPrice: last.sale_price, saleYear, ratePct: rate };
 }
 
 function buildChips(row, options, key){
@@ -156,6 +186,7 @@ function render(){
     if(l.baths != null) factsParts.push(l.baths + ' ba');
     if(l.sqft) factsParts.push(l.sqft + ' ft²');
     const m = mortgageMath(l.price);
+    const appr = appreciationInfo(l);
     return `
       <div class="card">
         <div class="card-top">
@@ -166,6 +197,7 @@ function render(){
           <div class="price">${fmtPrice(l.price)}</div>
         </div>
         <div class="facts">${factsParts.join(' · ')}</div>
+        ${appr ? `<div class="facts">Last sold ${fmtPrice(appr.lastPrice)} (${appr.saleYear}) · ${appr.ratePct >= 0 ? '+' : ''}${appr.ratePct.toFixed(1)}%/yr since</div>` : ''}
         <div class="mortgage-box">
           <div class="m-item"><div class="m-label">Down (${calcState.downPct}%)</div><div class="m-value">${fmtPrice(m.down)}</div></div>
           <div class="m-item"><div class="m-label">Loan amount</div><div class="m-value">${fmtPrice(m.loan)}</div></div>
