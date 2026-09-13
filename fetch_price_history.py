@@ -237,11 +237,24 @@ def find_sale_history(parsed):
     return sales
 
 
+def sql_literal(value):
+    return "'" + str(value).replace("'", "''") + "'"
+
+
+def upsert_sql(listing_id, sale_date, sale_price):
+    return (
+        "insert into housing_price_history (listing_id, sale_date, sale_price) values "
+        f"({sql_literal(listing_id)}, {sql_literal(sale_date)}, {sale_price}) "
+        "on conflict (listing_id, sale_date) do update set sale_price = excluded.sale_price;"
+    )
+
+
 def supabase_request(method, path, body=None):
+    key = SUPABASE_SERVICE_KEY or os.environ.get("SUPABASE_ANON_KEY")
     url = SUPABASE_URL.rstrip("/") + path
     headers = {
-        "apikey": SUPABASE_SERVICE_KEY,
-        "Authorization": f"Bearer {SUPABASE_SERVICE_KEY}",
+        "apikey": key,
+        "Authorization": f"Bearer {key}",
         "Content-Type": "application/json",
         "Prefer": "resolution=merge-duplicates,return=minimal",
     }
@@ -254,8 +267,18 @@ def supabase_request(method, path, body=None):
 
 def main():
     dry_run = "--dry-run" in sys.argv
-    if not dry_run and not (SUPABASE_URL and SUPABASE_SERVICE_KEY):
-        print("SUPABASE_URL / SUPABASE_SERVICE_KEY not set -- pass --dry-run to test matching only.", file=sys.stderr)
+    sql_out_path = None
+    if "--sql-out" in sys.argv:
+        sql_out_path = sys.argv[sys.argv.index("--sql-out") + 1]
+
+    if not dry_run and not sql_out_path and not (SUPABASE_URL and SUPABASE_SERVICE_KEY):
+        print(
+            "SUPABASE_URL / SUPABASE_SERVICE_KEY not set -- pass --dry-run to test matching "
+            "only, or --sql-out <file> to emit SQL for `supabase db query` instead of using the "
+            "REST API (reading listings still needs SUPABASE_URL, but any working key works since "
+            "housing_listings is publicly readable).",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
     if dry_run:
@@ -265,6 +288,7 @@ def main():
             "GET", "/rest/v1/housing_listings?select=id,address,price&active=eq.true"
         ) or []
 
+    sql_statements = []
     matched, unmatched = 0, 0
     for listing in listings:
         parsed = parse_address(listing["address"])
@@ -284,7 +308,10 @@ def main():
         last = sales[0]
         print(f"MATCH: {listing['address']} -> last sold ${last['sale_price']:,.0f} on {last['sale_date']} ({len(sales)} sale(s) found)")
 
-        if not dry_run:
+        if sql_out_path:
+            for s in sales:
+                sql_statements.append(upsert_sql(listing["id"], s["sale_date"], s["sale_price"]))
+        elif not dry_run:
             for s in sales:
                 supabase_request(
                     "POST", "/rest/v1/housing_price_history?on_conflict=listing_id,sale_date",
@@ -295,6 +322,11 @@ def main():
                     },
                 )
         time.sleep(0.5)
+
+    if sql_out_path:
+        with open(sql_out_path, "w") as f:
+            f.write("\n".join(sql_statements) + "\n" if sql_statements else "")
+        print(f"\nWrote {len(sql_statements)} SQL statement(s) to {sql_out_path}")
 
     print(f"\nDone. {matched} matched, {unmatched} unmatched.")
 
