@@ -59,7 +59,10 @@ def neighborhood_label(zip_code):
 def fetch_rows():
     zips_clause = ",".join(f"'{z}'" for z in ZIP_TO_NEIGHBORHOODS)
     params = {
-        "$where": f"postcode in({zips_clause})",
+        # Preservation only -- these are existing occupied buildings that
+        # picked up an affordability requirement, as opposed to New
+        # Construction units that go through the Housing Connect lottery.
+        "$where": f"postcode in({zips_clause}) AND reporting_construction_type='Preservation'",
         "$limit": 5000,
     }
     url = SOCRATA_URL + "?" + urllib.parse.urlencode(params)

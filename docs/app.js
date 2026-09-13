@@ -22,7 +22,7 @@ const TAB_META = {
   'rentals': { title: 'Rental Monitor', sub: 'Live availability across the Stuyvesant Town / Parker Towers / Kips Bay Court / Peter Cooper Village portfolio.' },
   'for-sale': { title: 'For Sale', sub: 'Houses, condos, and co-ops in a handful of Queens/Astoria/Brooklyn neighborhoods.' },
   'savings': { title: 'Savings Calculator', sub: 'Project how a monthly contribution grows toward a goal.' },
-  'analytics': { title: 'Building Analytics', sub: 'Income-restricted housing units across the same Queens/Brooklyn neighborhoods tracked on the For Sale tab.' },
+  'analytics': { title: 'Building Analytics', sub: 'Preserved (non-lottery) income-restricted housing units across the same Queens/Brooklyn neighborhoods tracked on the For Sale tab.' },
 };
 
 function showTab(name){
