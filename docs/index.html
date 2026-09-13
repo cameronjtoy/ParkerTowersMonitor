@@ -3,342 +3,118 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rental Monitor</title>
+<title>NYC Housing</title>
+<link rel="stylesheet" href="styles.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-  :root{
-    --paper:#F5F3EE; --card:#FFFFFF; --ink:#1C1B19; --ink-soft:#5A574D; --line:#DAD4C6;
-    --accent:#1F4B4A; --accent-tint:#E4EDEC; --deal:#A9822F; --deal-tint:#F2E9D3;
-  }
-  *{box-sizing:border-box;}
-  body{margin:0;background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;}
-  .wrap{max-width:640px;margin:0 auto;padding:20px 16px 48px;}
-  .nav{font-size:13px;margin:0 0 10px;}
-  .nav a{color:var(--ink-soft);}
-  h1{font-family:Georgia,serif;font-size:26px;margin:0 0 4px;}
-  .sub{color:var(--ink-soft);font-size:14px;margin:0;}
-  .filters{position:sticky;top:0;background:var(--paper);padding:14px 0 10px;z-index:5;border-bottom:1px solid var(--line);margin-bottom:14px;}
-  .filter-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;}
-  .filter-row + .filter-row{margin-top:8px;}
-  .chip{flex:0 0 auto;padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);font-size:13px;color:var(--ink-soft);cursor:pointer;white-space:nowrap;}
-  .chip.active{background:var(--ink);color:var(--paper);border-color:var(--ink);}
-  .meta-line{display:flex;justify-content:space-between;font-size:13px;color:var(--ink-soft);margin:2px 0 14px;}
-  .meta-line button{background:none;border:none;color:var(--ink-soft);text-decoration:underline;font-size:13px;cursor:pointer;padding:0;}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:12px;}
-  .card.is-deal{border-color:var(--deal);}
-  .card-top{display:flex;justify-content:space-between;gap:10px;}
-  .place{font-family:Georgia,serif;font-size:17px;margin:0 0 2px;}
-  .property-tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:5px;margin-top:3px;background:var(--accent-tint);color:var(--accent);}
-  .price{font-family:Georgia,serif;font-size:19px;font-weight:bold;white-space:nowrap;}
-  .card.is-deal .price{color:var(--deal);}
-  .deal-pill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:5px;background:var(--deal-tint);color:var(--deal);margin-left:6px;vertical-align:middle;}
-  .facts{font-size:13.5px;color:var(--ink-soft);margin:10px 0 0;}
-  .card-bottom{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:10px;margin-top:12px;font-size:12px;color:var(--ink-soft);}
-  .empty, .loading{text-align:center;padding:40px 20px;color:var(--ink-soft);font-size:14px;line-height:1.6;}
-  footer{margin-top:22px;font-size:12px;color:var(--ink-soft);line-height:1.6;border-top:1px solid var(--line);padding-top:14px;}
-  .signup-panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px 16px;margin-bottom:16px;}
-  .signup-title{font-family:Georgia,serif;font-size:15px;margin:0 0 4px;}
-  .signup-sub{font-size:12.5px;color:var(--ink-soft);margin:0 0 12px;}
-  .signup-row{display:flex;gap:8px;flex-wrap:wrap;}
-  .signup-row input, .signup-row select{flex:1 1 140px;padding:8px 9px;border:1px solid var(--line);border-radius:6px;font-size:13.5px;background:var(--paper);color:var(--ink);}
-  .signup-row button{padding:8px 14px;border:1px solid var(--ink);border-radius:6px;background:var(--ink);color:var(--paper);font-size:13.5px;cursor:pointer;white-space:nowrap;}
-  .signup-row button.secondary{background:var(--paper);color:var(--ink-soft);border-color:var(--line);}
-  .signup-msg{font-size:12.5px;margin-top:8px;min-height:16px;}
-  .signup-msg.ok{color:var(--accent);}
-  .signup-msg.err{color:#8B3A3A;}
-  .signup-toggle{font-size:12px;color:var(--ink-soft);text-decoration:underline;cursor:pointer;margin-top:8px;display:inline-block;}
-</style>
+
 </head>
 <body>
 <div class="wrap">
-  <p class="nav"><a href="housing.html">For Sale →</a></p>
   <header>
-    <h1>Rental Monitor</h1>
-    <p class="sub">Live availability across the Stuyvesant Town / Parker Towers / Kips Bay Court / Peter Cooper Village portfolio.</p>
+    <h1 id="pageTitle">Rental Monitor</h1>
+    <p class="sub" id="pageSub">Live availability across the Stuyvesant Town / Parker Towers / Kips Bay Court / Peter Cooper Village portfolio.</p>
   </header>
 
-  <div class="signup-panel">
-    <p class="signup-title">Get texted for new listings</p>
-    <p class="signup-sub">Add your number and set your own price ceiling per bedroom count — leave a field blank to skip texts for that size. No confirmation step — anyone with this link can add, edit, or remove a number.</p>
-    <div class="signup-row">
-      <input type="tel" id="phoneInput" placeholder="Phone number">
-      <select id="carrierInput">
-        <option value="">Carrier…</option>
-      </select>
-    </div>
-    <div class="signup-row" style="margin-top:8px;">
-      <input type="number" id="thresholdStudio" placeholder="Studio max $" min="0">
-      <input type="number" id="threshold1bd" placeholder="1BD max $" min="0">
-      <input type="number" id="threshold2bd" placeholder="2BD max $" min="0">
-      <input type="number" id="threshold3bd" placeholder="3+BD max $" min="0">
-    </div>
-    <div class="signup-row" style="margin-top:8px;">
-      <button id="subscribeBtn">Save & text me</button>
-    </div>
-    <p class="signup-msg" id="signupMsg"></p>
-    <span class="signup-toggle" id="unsubscribeToggle">Remove my number</span>
-    <div class="signup-row" id="unsubscribeRow" style="display:none;margin-top:8px;">
-      <input type="tel" id="unsubPhoneInput" placeholder="Phone number to remove">
-      <button class="secondary" id="unsubscribeBtn">Remove</button>
-    </div>
+  <div class="tab-bar">
+    <button class="tab-btn" data-tab="rentals">Rentals</button>
+    <button class="tab-btn" data-tab="for-sale">For Sale</button>
+    <button class="tab-btn" data-tab="savings">Savings Calculator</button>
   </div>
 
-  <div class="filters">
-    <div class="filter-row" id="propertyRow"></div>
-    <div class="filter-row" id="priceRow"></div>
-  </div>
+  <section id="tab-rentals" class="tab-panel">
+    <div class="signup-panel">
+      <p class="signup-title">Get texted for new listings</p>
+      <p class="signup-sub">Add your number and set your own price ceiling per bedroom count — leave a field blank to skip texts for that size. No confirmation step — anyone with this link can add, edit, or remove a number.</p>
+      <div class="signup-row">
+        <input type="tel" id="phoneInput" placeholder="Phone number">
+        <select id="carrierInput">
+          <option value="">Carrier…</option>
+        </select>
+      </div>
+      <div class="signup-row" style="margin-top:8px;">
+        <input type="number" id="thresholdStudio" placeholder="Studio max $" min="0">
+        <input type="number" id="threshold1bd" placeholder="1BD max $" min="0">
+        <input type="number" id="threshold2bd" placeholder="2BD max $" min="0">
+        <input type="number" id="threshold3bd" placeholder="3+BD max $" min="0">
+      </div>
+      <div class="signup-row" style="margin-top:8px;">
+        <button id="subscribeBtn">Save &amp; text me</button>
+      </div>
+      <p class="signup-msg" id="signupMsg"></p>
+      <span class="signup-toggle" id="unsubscribeToggle">Remove my number</span>
+      <div class="signup-row" id="unsubscribeRow" style="display:none;margin-top:8px;">
+        <input type="tel" id="unsubPhoneInput" placeholder="Phone number to remove">
+        <button class="secondary" id="unsubscribeBtn">Remove</button>
+      </div>
+    </div>
 
-  <div class="meta-line">
-    <span id="countLine"></span>
-    <button id="delistedToggle">Show delisted</button>
-  </div>
+    <div class="filters">
+      <div class="filter-row" id="propertyRow"></div>
+      <div class="filter-row" id="priceRow"></div>
+    </div>
 
-  <div id="loadingState" class="loading">Loading listings…</div>
-  <div id="cardList"></div>
-  <div class="empty" id="emptyState" style="display:none;"></div>
+    <div class="meta-line">
+      <span id="rentalsCountLine"></span>
+      <button id="delistedToggle">Show delisted</button>
+    </div>
 
-  <footer>
-    Checked every 15 minutes, 6–10am ET daily. Units under the alert threshold are highlighted in gold. Not affiliated with the property manager.
-  </footer>
+    <div id="rentalsLoading" class="loading">Loading listings…</div>
+    <div id="rentalsCardList"></div>
+    <div class="empty" id="rentalsEmpty" style="display:none;"></div>
+
+    <footer>
+      Checked every 15 minutes, 6–10am ET daily. Units under the alert threshold are highlighted in gold. Not affiliated with the property manager.
+    </footer>
+  </section>
+
+  <section id="tab-forsale" class="tab-panel tab-forsale" hidden>
+    <div class="calc-panel">
+      <p class="calc-title">Mortgage assumptions</p>
+      <div class="calc-grid">
+        <div class="calc-field"><label>Down payment (%)</label><input type="number" id="downPct" value="20" min="0" max="100" step="1"></div>
+        <div class="calc-field"><label>Interest rate (%)</label><input type="number" id="rate" value="6.71" min="0" max="15" step="0.01"></div>
+        <div class="calc-field full">
+          <label>Loan term</label>
+          <div class="term-toggle">
+            <div class="term-btn active" data-term="30" data-rate="6.71">30-year</div>
+            <div class="term-btn" data-term="15" data-rate="6.04">15-year</div>
+          </div>
+        </div>
+      </div>
+      <p class="calc-note">Rate defaults are the Freddie Mac PMMS national weekly average as of 09/03/2026 — edit to match your actual quote. P&amp;I only — no tax, insurance, or co-op maintenance / condo common charges. Co-op boards often require higher down payments than a bank would.</p>
+    </div>
+
+    <div class="filter-row" id="typeRow"></div>
+    <div class="filter-row" id="cityRow"></div>
+
+    <div class="meta-line" id="saleCountLine"></div>
+
+    <div id="saleLoading" class="loading">Loading listings…</div>
+    <div id="saleCardList"></div>
+    <div class="empty" id="saleEmpty" style="display:none;"></div>
+
+    <footer>
+      Refreshed on demand (no fixed schedule). Sourced from Redfin — not affiliated.
+    </footer>
+  </section>
+
+  <section id="tab-savings" class="tab-panel" hidden>
+    <div class="calc-panel">
+      <p class="calc-title">Savings goal</p>
+      <div class="calc-grid">
+        <div class="calc-field"><label>Current savings ($)</label><input type="number" id="savStart" value="0" min="0" step="100"></div>
+        <div class="calc-field"><label>Monthly contribution ($)</label><input type="number" id="savMonthly" value="500" min="0" step="50"></div>
+        <div class="calc-field"><label>Expected annual return (%)</label><input type="number" id="savRate" value="7" min="0" max="30" step="0.1"></div>
+        <div class="calc-field"><label>Goal amount ($)</label><input type="number" id="savGoal" value="100000" min="0" step="1000"></div>
+      </div>
+      <p class="calc-note">Purely a projection — nothing here is saved or sent anywhere, it's recalculated in your browser each time. Assumes monthly compounding and a constant contribution/return; real markets don't move in a straight line.</p>
+    </div>
+
+    <div id="savingsResult"></div>
+  </section>
 </div>
 
 <script src="config.js"></script>
-<script>
-// config.js (untracked, see config.example.js) must define:
-//   const SUPABASE_URL = "https://xxxx.supabase.co";
-//   const SUPABASE_ANON_KEY = "eyJ...";   <- the ANON key only, never service_role
-//   const PRICE_THRESHOLD = 2200;
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-let listings = [];
-const priceOptions = ['All', `Under $${PRICE_THRESHOLD}`, 'Under $5000', '$5000+'];
-let state = { property:'All', priceBand:'All', showDelisted:false };
-
-const CARRIER_GATEWAYS = {
-  'AT&T': 'txt.att.net',
-  'Verizon': 'vtext.com',
-  'T-Mobile': 'tmomail.net',
-  'Mint Mobile': 'tmomail.net',
-  'Metro by T-Mobile': 'mymetropcs.com',
-  'Boost Mobile': 'sms.myboostmobile.com',
-  'Cricket Wireless': 'sms.cricketwireless.net',
-  'US Cellular': 'email.uscc.net',
-  'Google Fi': 'msg.fi.google.com',
-  'Visible': 'vtext.com',
-  'Xfinity Mobile': 'vtext.com',
-};
-
-function populateCarrierOptions(){
-  const select = document.getElementById('carrierInput');
-  Object.keys(CARRIER_GATEWAYS).forEach(name=>{
-    const opt = document.createElement('option');
-    opt.value = name;
-    opt.textContent = name;
-    select.appendChild(opt);
-  });
-}
-
-function normalizePhone(raw){
-  let digits = raw.replace(/\D/g, '');
-  if(digits.length === 11 && digits.startsWith('1')) digits = digits.slice(1);
-  return digits;
-}
-
-function showSignupMsg(text, ok){
-  const el = document.getElementById('signupMsg');
-  el.textContent = text;
-  el.className = 'signup-msg ' + (ok ? 'ok' : 'err');
-}
-
-// Pre-fill carrier + existing thresholds when a returning number is entered,
-// so editing (e.g. changing just the 2BD ceiling) doesn't blank out the
-// other bed counts -- the save below overwrites the whole thresholds object.
-async function loadExistingSettings(){
-  const phone = normalizePhone(document.getElementById('phoneInput').value);
-  if(phone.length !== 10) return;
-  const { data, error } = await supabaseClient
-    .from('subscribers')
-    .select('carrier,thresholds')
-    .eq('phone_number', phone)
-    .maybeSingle();
-  if(error || !data) return;
-  if(data.carrier) document.getElementById('carrierInput').value = data.carrier;
-  Object.entries(THRESHOLD_FIELDS).forEach(([bedKey, inputId])=>{
-    const val = (data.thresholds || {})[bedKey];
-    document.getElementById(inputId).value = val != null ? val : '';
-  });
-  showSignupMsg('Loaded your existing settings — edit and save to update.', true);
-}
-
-// Bedroom count -> threshold input id. "3" covers 3+ bedrooms, matching
-// monitor.py's threshold_bed_key (min(bedrooms, 3)).
-const THRESHOLD_FIELDS = { '0': 'thresholdStudio', '1': 'threshold1bd', '2': 'threshold2bd', '3': 'threshold3bd' };
-
-function readThresholds(){
-  const thresholds = {};
-  Object.entries(THRESHOLD_FIELDS).forEach(([bedKey, inputId])=>{
-    const raw = document.getElementById(inputId).value;
-    if(raw !== ''){
-      const n = Number(raw);
-      if(Number.isFinite(n) && n > 0) thresholds[bedKey] = n;
-    }
-  });
-  return thresholds;
-}
-
-async function subscribe(){
-  const phone = normalizePhone(document.getElementById('phoneInput').value);
-  const carrier = document.getElementById('carrierInput').value;
-  if(phone.length !== 10){
-    showSignupMsg('Enter a valid 10-digit US phone number.', false);
-    return;
-  }
-  if(!carrier){
-    showSignupMsg('Select a carrier.', false);
-    return;
-  }
-  const thresholds = readThresholds();
-  if(Object.keys(thresholds).length === 0){
-    showSignupMsg('Set a max price for at least one bedroom count.', false);
-    return;
-  }
-  const gatewayEmail = phone + '@' + CARRIER_GATEWAYS[carrier];
-  const { error } = await supabaseClient
-    .from('subscribers')
-    .upsert({ phone_number: phone, carrier, gateway_email: gatewayEmail, active: true, thresholds }, { onConflict: 'gateway_email' });
-  if(error){
-    showSignupMsg('Could not add number: ' + error.message, false);
-    return;
-  }
-  showSignupMsg("You're subscribed — texts start on the next check.", true);
-  document.getElementById('phoneInput').value = '';
-  document.getElementById('carrierInput').value = '';
-  Object.values(THRESHOLD_FIELDS).forEach(id => document.getElementById(id).value = '');
-}
-
-async function unsubscribe(){
-  const phone = normalizePhone(document.getElementById('unsubPhoneInput').value);
-  if(phone.length !== 10){
-    showSignupMsg('Enter a valid 10-digit US phone number to remove.', false);
-    return;
-  }
-  const { error } = await supabaseClient
-    .from('subscribers')
-    .delete()
-    .eq('phone_number', phone);
-  if(error){
-    showSignupMsg('Could not remove number: ' + error.message, false);
-    return;
-  }
-  showSignupMsg('Removed, if it was subscribed.', true);
-  document.getElementById('unsubPhoneInput').value = '';
-}
-
-async function loadListings(){
-  const { data, error } = await supabaseClient
-    .from('listings')
-    .select('*')
-    .order('price', { ascending: true });
-  if(error){
-    document.getElementById('loadingState').textContent = 'Could not load listings: ' + error.message;
-    return;
-  }
-  listings = data;
-  document.getElementById('loadingState').style.display = 'none';
-  render();
-}
-
-function fmtPrice(n){ return '$' + Math.round(n).toLocaleString('en-US'); }
-
-function timeAgo(iso){
-  const diffMs = Date.now() - new Date(iso).getTime();
-  const mins = Math.round(diffMs / 60000);
-  if(mins < 60) return mins + 'm ago';
-  const hours = Math.round(mins / 60);
-  if(hours < 24) return hours + 'h ago';
-  return Math.round(hours / 24) + 'd ago';
-}
-
-function inPriceBand(price){
-  if(state.priceBand==='All') return true;
-  if(state.priceBand===`Under $${PRICE_THRESHOLD}`) return price < PRICE_THRESHOLD;
-  if(state.priceBand==='Under $5000') return price < 5000;
-  if(state.priceBand==='$5000+') return price >= 5000;
-  return true;
-}
-
-function buildChips(row, options, key){
-  row.innerHTML = '';
-  options.forEach(opt=>{
-    const chip = document.createElement('div');
-    chip.className = 'chip' + (state[key]===opt ? ' active' : '');
-    chip.textContent = opt;
-    chip.onclick = ()=>{ state[key] = opt; render(); };
-    row.appendChild(chip);
-  });
-}
-
-function render(){
-  const propertyOptions = ['All', ...new Set(listings.map(l=>l.property))].filter(Boolean);
-  buildChips(document.getElementById('propertyRow'), propertyOptions, 'property');
-  buildChips(document.getElementById('priceRow'), priceOptions, 'priceBand');
-
-  let filtered = listings.filter(l=>{
-    if(!state.showDelisted && !l.active) return false;
-    if(state.property!=='All' && l.property!==state.property) return false;
-    if(!inPriceBand(l.price)) return false;
-    return true;
-  });
-
-  const list = document.getElementById('cardList');
-  const empty = document.getElementById('emptyState');
-  document.getElementById('countLine').textContent = filtered.length + (filtered.length===1 ? ' listing' : ' listings');
-  document.getElementById('delistedToggle').textContent = state.showDelisted ? 'Hide delisted' : 'Show delisted';
-
-  if(filtered.length===0){
-    list.innerHTML = '';
-    empty.style.display = 'block';
-    empty.textContent = "Nothing matches that combination right now.";
-    return;
-  }
-  empty.style.display = 'none';
-
-  list.innerHTML = filtered.map(l=>{
-    const isDeal = l.price < PRICE_THRESHOLD;
-    const factsParts = [];
-    if(l.beds != null) factsParts.push(l.beds + ' bd');
-    if(l.baths != null) factsParts.push(l.baths + ' ba');
-    if(l.sqft) factsParts.push(l.sqft + ' ft²');
-    return `
-      <div class="card ${isDeal ? 'is-deal' : ''}">
-        <div class="card-top">
-          <div>
-            <p class="place">Unit ${l.unit_number || l.id}${!l.active ? ' (delisted)' : ''}</p>
-            <span class="property-tag">${l.property}</span>
-          </div>
-          <div class="price">${fmtPrice(l.price)}${isDeal ? '<span class="deal-pill">Under threshold</span>' : ''}</div>
-        </div>
-        <div class="facts">${factsParts.join(' · ')}${l.address ? ' · ' + l.address : ''}</div>
-        <div class="card-bottom">
-          <span>Available: ${l.available_date || 'n/a'}</span>
-          <span>Last seen ${timeAgo(l.last_seen)}</span>
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-
-document.getElementById('delistedToggle').onclick = ()=>{ state.showDelisted = !state.showDelisted; render(); };
-document.getElementById('subscribeBtn').onclick = subscribe;
-document.getElementById('phoneInput').addEventListener('blur', loadExistingSettings);
-document.getElementById('unsubscribeBtn').onclick = unsubscribe;
-document.getElementById('unsubscribeToggle').onclick = ()=>{
-  const row = document.getElementById('unsubscribeRow');
-  row.style.display = row.style.display === 'none' ? 'flex' : 'none';
-};
-
-populateCarrierOptions();
-loadListings();
-</script>
+<script src="app.js"></script>
 </body>
 </html>

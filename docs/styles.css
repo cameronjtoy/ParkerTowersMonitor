@@ -1,0 +1,74 @@
+  :root{
+    --paper:#F5F3EE; --card:#FFFFFF; --ink:#1C1B19; --ink-soft:#5A574D; --line:#DAD4C6;
+    --accent:#1F4B4A; --accent-tint:#E4EDEC; --deal:#A9822F; --deal-tint:#F2E9D3;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;}
+  .wrap{max-width:640px;margin:0 auto;padding:20px 16px 48px;}
+  h1{font-family:Georgia,serif;font-size:26px;margin:0 0 4px;}
+  .sub{color:var(--ink-soft);font-size:14px;margin:0;}
+
+  .tab-bar{display:flex;gap:4px;margin:18px 0 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--paper);z-index:10;padding-top:4px;}
+  .tab-btn{flex:1;padding:10px 6px;text-align:center;font-size:13.5px;color:var(--ink-soft);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;font-family:inherit;}
+  .tab-btn.active{color:var(--ink);border-bottom-color:var(--ink);font-weight:600;}
+
+  .tab-panel[hidden]{display:none;}
+  /* Scoped accent per tab, so shared classes below (.price, .type-tag, etc)
+     pick up the right color without needing separate class names. */
+  .tab-forsale{ --accent:#6E2A3B; --accent-tint:#F1E4E7; }
+
+  .filters{position:sticky;top:41px;background:var(--paper);padding:14px 0 10px;z-index:5;border-bottom:1px solid var(--line);margin-bottom:14px;}
+  .filter-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;}
+  .filter-row + .filter-row{margin-top:8px;}
+  .chip{flex:0 0 auto;padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);font-size:13px;color:var(--ink-soft);cursor:pointer;white-space:nowrap;}
+  .chip.active{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .meta-line{display:flex;justify-content:space-between;font-size:13px;color:var(--ink-soft);margin:2px 0 14px;}
+  .meta-line button{background:none;border:none;color:var(--ink-soft);text-decoration:underline;font-size:13px;cursor:pointer;padding:0;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:12px;}
+  .card.is-deal{border-color:var(--deal);}
+  .card-top{display:flex;justify-content:space-between;gap:10px;}
+  .place{font-family:Georgia,serif;font-size:17px;margin:0 0 2px;}
+  .property-tag, .type-tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:5px;margin-top:3px;background:var(--accent-tint);color:var(--accent);}
+  .price{font-family:Georgia,serif;font-size:19px;font-weight:bold;white-space:nowrap;}
+  .tab-forsale .price{color:var(--accent);}
+  .card.is-deal .price{color:var(--deal);}
+  .deal-pill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:5px;background:var(--deal-tint);color:var(--deal);margin-left:6px;vertical-align:middle;}
+  .facts{font-size:13.5px;color:var(--ink-soft);margin:10px 0 0;}
+  .card-bottom{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:10px;margin-top:12px;font-size:12px;color:var(--ink-soft);}
+  .view-link{color:var(--accent);text-decoration:none;border-bottom:1px solid currentColor;}
+  .empty, .loading{text-align:center;padding:40px 20px;color:var(--ink-soft);font-size:14px;line-height:1.6;}
+  footer{margin-top:22px;font-size:12px;color:var(--ink-soft);line-height:1.6;border-top:1px solid var(--line);padding-top:14px;}
+
+  .signup-panel, .calc-panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px 16px;margin-bottom:16px;}
+  .signup-title, .calc-title{font-family:Georgia,serif;font-size:15px;margin:0 0 4px;}
+  .signup-sub, .calc-note{font-size:12.5px;color:var(--ink-soft);margin:0 0 12px;}
+  .signup-row{display:flex;gap:8px;flex-wrap:wrap;}
+  .signup-row input, .signup-row select{flex:1 1 140px;padding:8px 9px;border:1px solid var(--line);border-radius:6px;font-size:13.5px;background:var(--paper);color:var(--ink);}
+  .signup-row button{padding:8px 14px;border:1px solid var(--ink);border-radius:6px;background:var(--ink);color:var(--paper);font-size:13.5px;cursor:pointer;white-space:nowrap;}
+  .signup-row button.secondary{background:var(--paper);color:var(--ink-soft);border-color:var(--line);}
+  .signup-msg{font-size:12.5px;margin-top:8px;min-height:16px;}
+  .signup-msg.ok{color:var(--accent);}
+  .signup-msg.err{color:#8B3A3A;}
+  .signup-toggle{font-size:12px;color:var(--ink-soft);text-decoration:underline;cursor:pointer;margin-top:8px;display:inline-block;}
+
+  .calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;}
+  .calc-field label{display:block;font-size:11.5px;color:var(--ink-soft);margin-bottom:4px;}
+  .calc-field input{width:100%;padding:8px 9px;border:1px solid var(--line);border-radius:6px;font-size:14px;background:var(--paper);color:var(--ink);}
+  .calc-field.full{grid-column:1 / -1;}
+  .term-toggle{display:flex;gap:6px;}
+  .term-btn{flex:1;padding:8px 0;border:1px solid var(--line);border-radius:6px;background:var(--paper);font-size:13px;color:var(--ink-soft);cursor:pointer;text-align:center;}
+  .term-btn.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .mortgage-box{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-top:12px;display:flex;justify-content:space-between;gap:8px;font-size:12.5px;}
+  .mortgage-box .m-item{flex:1;}
+  .mortgage-box .m-label{color:var(--ink-soft);font-size:10.5px;margin-bottom:2px;}
+  .mortgage-box .m-value{font-weight:600;font-size:14px;}
+
+  .savings-result{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:16px;}
+  .savings-headline{font-family:Georgia,serif;font-size:19px;margin:0 0 4px;}
+  .savings-sub{font-size:12.5px;color:var(--ink-soft);margin:0;}
+  .savings-table{width:100%;border-collapse:collapse;margin-top:14px;font-size:13px;}
+  .savings-table th{text-align:right;color:var(--ink-soft);font-weight:500;font-size:11.5px;padding:4px 6px;border-bottom:1px solid var(--line);}
+  .savings-table th:first-child, .savings-table td:first-child{text-align:left;}
+  .savings-table td{text-align:right;padding:6px;border-bottom:1px solid var(--line);}
+  .savings-table tr:last-child td{border-bottom:none;font-weight:600;}
+  .savings-table-wrap{max-height:320px;overflow-y:auto;}
