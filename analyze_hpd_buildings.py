@@ -42,10 +42,26 @@ ZIP_TO_NEIGHBORHOODS = {
 
 MAX_ADDRESSES_PER_COMPLEX = 8
 
+# NYC DOF's Property Information Portal, deep-linkable by BBL (Borough-Block-Lot)
+# -- verified live: /parcels/parcel/{boro}{block:05d}{lot:04d} returns that
+# lot's actual owner/address/sales history, so each building here links out
+# to an official record for cross-checking.
+PIP_URL = "https://propertyinformationportal.nyc.gov/parcels/parcel/{bbl}"
+
 
 def neighborhood_label(zip_code):
     labels = ZIP_TO_NEIGHBORHOODS.get(zip_code)
     return " / ".join(labels) if labels else zip_code
+
+
+def bbl_for(row):
+    try:
+        boro = int(row["BoroID"])
+        block = int(row["Block"])
+        lot = int(row["Lot"])
+    except (ValueError, TypeError):
+        return None
+    return f"{boro}{block:05d}{lot:04d}"
 
 
 def main():
@@ -91,10 +107,18 @@ def main():
         stories = [float(r["LegalStories"]) for r in rows if r.get("LegalStories")]
         avg_stories = round(sum(stories) / len(stories), 1) if stories else None
 
-        addresses = sorted({
-            f"{r['HouseNumber'].strip()} {r['StreetName'].strip()}".strip()
-            for r in rows
-        })
+        buildings_by_addr = {}
+        for r in rows:
+            addr = f"{r['HouseNumber'].strip()} {r['StreetName'].strip()}".strip()
+            if addr in buildings_by_addr:
+                continue
+            bbl = bbl_for(r)
+            buildings_by_addr[addr] = {
+                "address": addr,
+                "bbl": bbl,
+                "portal_url": PIP_URL.format(bbl=bbl) if bbl else None,
+            }
+        buildings = sorted(buildings_by_addr.values(), key=lambda b: b["address"])
 
         complexes.append({
             "registration_id": reg_id,
@@ -103,8 +127,8 @@ def main():
             "building_count": len(rows),
             "management_program": management_program,
             "avg_stories": avg_stories,
-            "addresses": addresses[:MAX_ADDRESSES_PER_COMPLEX],
-            "addresses_truncated": len(addresses) > MAX_ADDRESSES_PER_COMPLEX,
+            "buildings": buildings[:MAX_ADDRESSES_PER_COMPLEX],
+            "addresses_truncated": len(buildings) > MAX_ADDRESSES_PER_COMPLEX,
         })
 
     complexes.sort(key=lambda c: c["building_count"], reverse=True)

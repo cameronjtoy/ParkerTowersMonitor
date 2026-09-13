@@ -565,7 +565,11 @@ function renderComplexes(){
 
   grid.innerHTML = filtered.map(c=>{
     const isNycha = c.management_program === 'NYCHA';
-    const addrList = c.addresses.join(', ') + (c.addresses_truncated ? ', …' : '');
+    // Each address links to NYC DOF's Property Information Portal for that
+    // lot (BBL) -- an official record to cross-check the building against.
+    const addrLinks = c.buildings.map(b=>
+      b.portal_url ? `<a class="view-link" href="${b.portal_url}" target="_blank" rel="noopener">${b.address}</a>` : b.address
+    ).join(', ') + (c.addresses_truncated ? ', …' : '');
     return `
       <div class="complex-card">
         <div class="card-top">
@@ -575,7 +579,7 @@ function renderComplexes(){
           </div>
         </div>
         <div class="facts">${c.neighborhood}${c.avg_stories ? ' · avg ' + c.avg_stories + ' stories' : ''}</div>
-        <div class="complex-addr">${addrList}</div>
+        <div class="complex-addr">${addrLinks}</div>
       </div>
     `;
   }).join('');
