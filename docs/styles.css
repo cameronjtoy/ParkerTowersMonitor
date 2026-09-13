@@ -87,3 +87,6 @@
   .complex-card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;}
   .complex-addr{font-size:12.5px;color:var(--ink-soft);margin-top:8px;line-height:1.5;}
   .badge-nycha{background:#EFE0D0;color:#8A5A2A;}
+  .section-title{font-family:Georgia,serif;font-size:19px;margin:28px 0 4px;border-top:1px solid var(--line);padding-top:20px;}
+  .tier-legend{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 16px;}
+  .tier-chip{font-size:12px;padding:5px 10px;border-radius:999px;background:var(--accent-tint);color:var(--accent);}

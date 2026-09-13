@@ -599,10 +599,101 @@ function loadAnalytics(){
     });
 }
 
+/* ---------------- Income-restricted housing (Low/Moderate Income only) ---------------- */
+let affordData = { tiers: [], neighborhoods: [], buildings: [] };
+let affordFilterState = { neighborhood: 'All' };
+
+function renderAffordDashboard(){
+  const totalUnits = affordData.buildings.reduce((s,b)=>s+b.total_income_restricted_units, 0);
+  const totalBuildings = affordData.buildings.length;
+  const byTier = {};
+  affordData.tiers.forEach(t => byTier[t.label] = 0);
+  affordData.buildings.forEach(b=>{
+    Object.entries(b.units_by_tier).forEach(([label, n])=>{ byTier[label] = (byTier[label]||0) + n; });
+  });
+
+  const dash = document.getElementById('affordDashSection');
+  dash.innerHTML = `
+    <div class="dash-grid">
+      <div class="stat-card"><div class="stat-value">${fmtNum(totalUnits)}</div><div class="stat-label">Income-restricted units (Low + Moderate)</div></div>
+      <div class="stat-card"><div class="stat-value">${fmtNum(totalBuildings)}</div><div class="stat-label">Buildings with such units</div></div>
+      ${affordData.tiers.map(t=>`
+        <div class="stat-card"><div class="stat-value">${fmtNum(byTier[t.label]||0)}</div><div class="stat-label">${t.label} units (${t.ami_range})</div></div>
+      `).join('')}
+    </div>
+    <table class="neighborhood-table">
+      <thead><tr><th>Neighborhood</th><th>Buildings</th>${affordData.tiers.map(t=>`<th>${t.label}</th>`).join('')}</tr></thead>
+      <tbody>
+        ${affordData.neighborhoods
+          .slice()
+          .sort((a,b)=> b.buildings - a.buildings)
+          .map(n=>`<tr><td>${n.neighborhood}</td><td>${n.buildings}</td>${affordData.tiers.map(t=>`<td>${fmtNum(n.units_by_tier[t.label]||0)}</td>`).join('')}</tr>`)
+          .join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+function renderAffordBuildings(){
+  const neighborhoodOptions = ['All', ...new Set(affordData.buildings.map(b=>b.neighborhood))].sort((a,b)=> a==='All' ? -1 : b==='All' ? 1 : a.localeCompare(b));
+  buildChips(document.getElementById('affordNeighborhoodRow'), neighborhoodOptions, affordFilterState, 'neighborhood', renderAffordBuildings);
+
+  const filtered = affordData.buildings.filter(b=>{
+    if(affordFilterState.neighborhood!=='All' && b.neighborhood!==affordFilterState.neighborhood) return false;
+    return true;
+  });
+
+  document.getElementById('affordCountLine').textContent = filtered.length + (filtered.length===1 ? ' building' : ' buildings');
+
+  const grid = document.getElementById('affordGrid');
+  const empty = document.getElementById('affordEmpty');
+  if(filtered.length===0){
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+    empty.textContent = 'No income-restricted (Low/Moderate) units found for that neighborhood in this data.';
+    return;
+  }
+  empty.style.display = 'none';
+
+  grid.innerHTML = filtered.map(b=>{
+    const tierTags = Object.entries(b.units_by_tier).map(([label,n])=>`<span class="type-tag">${n} ${label}</span>`).join(' ');
+    const addrHtml = b.portal_url
+      ? `<a class="view-link" href="${b.portal_url}" target="_blank" rel="noopener">${b.address}</a>`
+      : b.address;
+    return `
+      <div class="complex-card">
+        <div class="card-top">
+          <div>
+            <p class="place">${b.total_income_restricted_units} units</p>
+            ${tierTags}
+          </div>
+        </div>
+        <div class="facts">${b.neighborhood}${b.total_units ? ' · ' + b.total_units + ' total units in building' : ''}</div>
+        <div class="complex-addr">${addrHtml}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function loadAffordableHousing(){
+  fetch('affordable_housing.json')
+    .then(r=>r.json())
+    .then(data=>{
+      affordData = data;
+      document.getElementById('affordLoading').style.display = 'none';
+      renderAffordDashboard();
+      renderAffordBuildings();
+    })
+    .catch(err=>{
+      document.getElementById('affordLoading').textContent = 'Could not load affordable housing data: ' + err.message;
+    });
+}
+
 /* ---------------- Init ---------------- */
 populateCarrierOptions();
 loadRentalListings();
 loadSaleListings();
 renderSavings();
 loadAnalytics();
+loadAffordableHousing();
 showTab(location.hash.slice(1) || 'rentals');
