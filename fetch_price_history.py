@@ -140,24 +140,14 @@ def socrata_get(url, params, max_time=60):
         return json.loads(resp.read())
 
 
-def find_sale_history(parsed):
-    """Returns a list of {sale_date, sale_price} dicts, newest first.
-
-    A single sale is recorded as at least two ACRIS documents -- the DEED
-    (which frequently has document_amt=0) and a companion RPTT&RET filing
-    that carries the actual price -- each with its OWN document_id. So we
-    can't filter by unit at the legals step: the price-bearing document
-    for our unit might not itself carry a matching (or any) unit value.
-    Instead, pull every document_id for the whole building first, look up
-    which of those have a real sale amount, and only THEN check which unit
-    each of those specific documents belongs to.
+def fetch_building_doc_info(parsed):
+    """document_id -> {"unit", "block_lot"} for every ACRIS legals record
+    matching this address's street number/name (merged across spelling
+    variants -- see parse_address). Shared by find_sale_history and
+    classify_property_type so each listing only costs one round of legals
+    queries.
     """
-    # Query every spelling variant and merge -- a wrong-but-nonempty variant
-    # (e.g. matching some unrelated address that happens to share a street
-    # number) is harmless here since it just adds documents that won't carry
-    # our target unit; stopping at the "first" variant instead risked landing
-    # on the wrong one, since street_name_variants' order isn't meaningful.
-    doc_info = {}  # document_id -> {"unit": ..., "block_lot": (block, lot)}
+    doc_info = {}
     for street_name in parsed["street_name_variants"]:
         try:
             rows = socrata_get(
@@ -179,7 +169,7 @@ def find_sale_history(parsed):
             }
 
     if not doc_info:
-        return []
+        return {}
 
     # A house has no unit to disambiguate with, so if the merged variants
     # accidentally pulled in an unrelated address sharing the same street
@@ -192,6 +182,53 @@ def find_sale_history(parsed):
             block_lot_counts[info["block_lot"]] = block_lot_counts.get(info["block_lot"], 0) + 1
         target_block_lot = max(block_lot_counts, key=block_lot_counts.get)
         doc_info = {k: v for k, v in doc_info.items() if v["block_lot"] == target_block_lot}
+
+    return doc_info
+
+
+def classify_property_type(parsed, doc_info):
+    """Condo vs co-op is determinable from ACRIS without needing a priced
+    sale: condo units each get their own tax lot, but a co-op building's
+    apartments all share a single lot (the building itself is one lot,
+    owned by the co-op corporation) -- individual "sales" are share
+    transfers, not separate real property. So if our unit's lot is also
+    used by other, different units, it's a co-op; if the lot is unique to
+    this unit, it's a condo.
+    """
+    if not doc_info:
+        return None
+    if not parsed["unit"]:
+        return "House"
+
+    target = re.sub(r"[-\s]", "", parsed["unit"]).upper()
+    units_by_lot = {}
+    target_lot = None
+    for info in doc_info.values():
+        u = re.sub(r"[-\s]", "", (info["unit"] or "").upper())
+        units_by_lot.setdefault(info["block_lot"], set()).add(u)
+        if u == target:
+            target_lot = info["block_lot"]
+
+    if target_lot is None:
+        return None
+    other_units_at_lot = units_by_lot[target_lot] - {"", target}
+    return "Co-op" if other_units_at_lot else "Condo"
+
+
+def find_sale_history(parsed, doc_info):
+    """Returns a list of {sale_date, sale_price} dicts, newest first.
+
+    A single sale is recorded as at least two ACRIS documents -- the DEED
+    (which frequently has document_amt=0) and a companion RPTT&RET filing
+    that carries the actual price -- each with its OWN document_id. So we
+    can't filter by unit at the legals step: the price-bearing document
+    for our unit might not itself carry a matching (or any) unit value.
+    Instead, pull every document_id for the whole building first, look up
+    which of those have a real sale amount, and only THEN check which unit
+    each of those specific documents belongs to.
+    """
+    if not doc_info:
+        return []
 
     unit_by_doc_id = {k: v["unit"] for k, v in doc_info.items()}
 
@@ -249,6 +286,13 @@ def upsert_sql(listing_id, sale_date, sale_price):
     )
 
 
+def property_type_update_sql(listing_id, property_type):
+    return (
+        f"update housing_listings set property_type = {sql_literal(property_type)} "
+        f"where id = {sql_literal(listing_id)};"
+    )
+
+
 def supabase_request(method, path, body=None):
     key = SUPABASE_SERVICE_KEY or os.environ.get("SUPABASE_ANON_KEY")
     url = SUPABASE_URL.rstrip("/") + path
@@ -285,11 +329,11 @@ def main():
         listings = json.loads(sys.stdin.read())
     else:
         listings = supabase_request(
-            "GET", "/rest/v1/housing_listings?select=id,address,price&active=eq.true"
+            "GET", "/rest/v1/housing_listings?select=id,address,price,property_type&active=eq.true"
         ) or []
 
     sql_statements = []
-    matched, unmatched = 0, 0
+    matched, unmatched, typed = 0, 0, 0
     for listing in listings:
         parsed = parse_address(listing["address"])
         if not parsed:
@@ -297,7 +341,22 @@ def main():
             unmatched += 1
             continue
 
-        sales = find_sale_history(parsed)
+        doc_info = fetch_building_doc_info(parsed)
+
+        if not listing.get("property_type"):
+            property_type = classify_property_type(parsed, doc_info)
+            if property_type:
+                typed += 1
+                print(f"TYPE: {listing['address']} -> {property_type}")
+                if sql_out_path:
+                    sql_statements.append(property_type_update_sql(listing["id"], property_type))
+                elif not dry_run:
+                    supabase_request(
+                        "PATCH", f"/rest/v1/housing_listings?id=eq.{listing['id']}",
+                        body={"property_type": property_type},
+                    )
+
+        sales = find_sale_history(parsed, doc_info)
         if not sales:
             print(f"NO MATCH: {listing['address']}")
             unmatched += 1
@@ -328,7 +387,7 @@ def main():
             f.write("\n".join(sql_statements) + "\n" if sql_statements else "")
         print(f"\nWrote {len(sql_statements)} SQL statement(s) to {sql_out_path}")
 
-    print(f"\nDone. {matched} matched, {unmatched} unmatched.")
+    print(f"\nDone. {matched} sale(s) matched, {typed} type(s) classified, {unmatched} address(es) with no sale match.")
 
 
 if __name__ == "__main__":
