@@ -1,12 +1,24 @@
 {
   "tiers": [
     {
+      "label": "Extremely Low Income",
+      "ami_range": "0-30% AMI"
+    },
+    {
+      "label": "Very Low Income",
+      "ami_range": "31-50% AMI"
+    },
+    {
       "label": "Low Income",
       "ami_range": "51-80% AMI"
     },
     {
       "label": "Moderate Income",
       "ami_range": "81-120% AMI"
+    },
+    {
+      "label": "Middle Income",
+      "ami_range": "121-165% AMI"
     }
   ],
   "neighborhoods": [
@@ -23,7 +35,9 @@
       "neighborhood": "Astoria",
       "buildings": 9,
       "units_by_tier": {
+        "Very Low Income": 74,
         "Low Income": 116,
+        "Extremely Low Income": 348,
         "Moderate Income": 72
       }
     },
@@ -32,14 +46,17 @@
       "neighborhood": "Astoria",
       "buildings": 1,
       "units_by_tier": {
+        "Very Low Income": 1,
         "Low Income": 7
       }
     },
     {
       "zip": "11206",
       "neighborhood": "Brooklyn",
-      "buildings": 34,
+      "buildings": 48,
       "units_by_tier": {
+        "Extremely Low Income": 179,
+        "Very Low Income": 1279,
         "Low Income": 1933,
         "Moderate Income": 5
       }
@@ -47,17 +64,22 @@
     {
       "zip": "11211",
       "neighborhood": "Brooklyn",
-      "buildings": 45,
+      "buildings": 55,
       "units_by_tier": {
+        "Extremely Low Income": 446,
+        "Very Low Income": 275,
         "Low Income": 173,
-        "Moderate Income": 231
+        "Moderate Income": 231,
+        "Middle Income": 1
       }
     },
     {
       "zip": "11249",
       "neighborhood": "Brooklyn",
-      "buildings": 8,
+      "buildings": 11,
       "units_by_tier": {
+        "Very Low Income": 510,
+        "Extremely Low Income": 61,
         "Moderate Income": 2,
         "Low Income": 72
       }
@@ -67,6 +89,8 @@
       "neighborhood": "Rego Park",
       "buildings": 6,
       "units_by_tier": {
+        "Extremely Low Income": 22,
+        "Very Low Income": 127,
         "Low Income": 271,
         "Moderate Income": 160
       }
@@ -76,6 +100,8 @@
       "neighborhood": "Forest Hills / Queens",
       "buildings": 4,
       "units_by_tier": {
+        "Extremely Low Income": 288,
+        "Very Low Income": 126,
         "Low Income": 47,
         "Moderate Income": 7
       }
@@ -96,25 +122,13 @@
       "zip": "11206",
       "neighborhood": "Brooklyn",
       "units_by_tier": {
+        "Very Low Income": 143,
         "Low Income": 243
       },
-      "total_income_restricted_units": 243,
+      "total_income_restricted_units": 386,
       "total_units": 387,
       "bbl": "3030770001",
       "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3030770001"
-    },
-    {
-      "project_name": "LINDSAY PARK.HRP.FY18",
-      "address": "29 MOORE STREET",
-      "zip": "11206",
-      "neighborhood": "Brooklyn",
-      "units_by_tier": {
-        "Low Income": 241
-      },
-      "total_income_restricted_units": 241,
-      "total_units": 387,
-      "bbl": "3030780001",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3030780001"
     },
     {
       "project_name": "LINDSAY PARK.HRP.FY18",
@@ -122,9 +136,10 @@
       "zip": "11206",
       "neighborhood": "Brooklyn",
       "units_by_tier": {
+        "Very Low Income": 146,
         "Low Income": 240
       },
-      "total_income_restricted_units": 240,
+      "total_income_restricted_units": 386,
       "total_units": 387,
       "bbl": "3030600075",
       "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3030600075"
@@ -135,38 +150,13 @@
       "zip": "11206",
       "neighborhood": "Brooklyn",
       "units_by_tier": {
+        "Very Low Income": 151,
         "Low Income": 235
       },
-      "total_income_restricted_units": 235,
+      "total_income_restricted_units": 386,
       "total_units": 387,
       "bbl": "3030780001",
       "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3030780001"
-    },
-    {
-      "project_name": "LINDSAY PARK.HRP.FY18",
-      "address": "31 LEONARD STREET",
-      "zip": "11206",
-      "neighborhood": "Brooklyn",
-      "units_by_tier": {
-        "Low Income": 234
-      },
-      "total_income_restricted_units": 234,
-      "total_units": 387,
-      "bbl": "3030770001",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3030770001"
-    },
-    {
-      "project_name": "LINDSAY PARK.HRP.FY18",
-      "address": "25 BOERUM STREET",
-      "zip": "11206",
-      "neighborhood": "Brooklyn",
-      "units_by_tier": {
-        "Low Income": 212
-      },
-      "total_income_restricted_units": 212,
-      "total_units": 387,
-      "bbl": "3030580001",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3030580001"
     },
     {
       "project_name": "LINDSAY PARK.HRP.FY18",
@@ -174,12 +164,55 @@
       "zip": "11206",
       "neighborhood": "Brooklyn",
       "units_by_tier": {
+        "Very Low Income": 177,
         "Low Income": 209
       },
-      "total_income_restricted_units": 209,
+      "total_income_restricted_units": 386,
       "total_units": 387,
       "bbl": "3030580001",
       "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3030580001"
+    },
+    {
+      "project_name": "LINDSAY PARK.HRP.FY18",
+      "address": "25 BOERUM STREET",
+      "zip": "11206",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Very Low Income": 174,
+        "Low Income": 212
+      },
+      "total_income_restricted_units": 386,
+      "total_units": 387,
+      "bbl": "3030580001",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3030580001"
+    },
+    {
+      "project_name": "LINDSAY PARK.HRP.FY18",
+      "address": "31 LEONARD STREET",
+      "zip": "11206",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Very Low Income": 152,
+        "Low Income": 234
+      },
+      "total_income_restricted_units": 386,
+      "total_units": 387,
+      "bbl": "3030770001",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3030770001"
+    },
+    {
+      "project_name": "LINDSAY PARK.HRP.FY18",
+      "address": "29 MOORE STREET",
+      "zip": "11206",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Very Low Income": 145,
+        "Low Income": 241
+      },
+      "total_income_restricted_units": 386,
+      "total_units": 387,
+      "bbl": "3030780001",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3030780001"
     },
     {
       "project_name": "GOODWILL TERRACE",
@@ -195,18 +228,93 @@
       "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/4009090001"
     },
     {
+      "project_name": "KENT VILLAGE",
+      "address": "60 DIVISION AVENUE",
+      "zip": "11249",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Very Low Income": 177,
+        "Low Income": 15
+      },
+      "total_income_restricted_units": 192,
+      "total_units": 192,
+      "bbl": "3021660001",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3021660001"
+    },
+    {
+      "project_name": "KENT VILLAGE",
+      "address": "541 WYTHE AVENUE",
+      "zip": "11249",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Very Low Income": 180,
+        "Low Income": 12
+      },
+      "total_income_restricted_units": 192,
+      "total_units": 192,
+      "bbl": "3021660001",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3021660001"
+    },
+    {
       "project_name": "STATE PRESERVATION.HPO.FY26",
       "address": "64-20 SAUNDERS STREET",
       "zip": "11374",
       "neighborhood": "Rego Park",
       "units_by_tier": {
+        "Extremely Low Income": 4,
+        "Very Low Income": 27,
         "Low Income": 81,
         "Moderate Income": 38
       },
-      "total_income_restricted_units": 119,
+      "total_income_restricted_units": 150,
       "total_units": 151,
       "bbl": "4030850008",
       "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/4030850008"
+    },
+    {
+      "project_name": "FOREST HILLS MHA HDFC.HRP.FY19",
+      "address": "108-53 62 DRIVE",
+      "zip": "11375",
+      "neighborhood": "Forest Hills / Queens",
+      "units_by_tier": {
+        "Extremely Low Income": 89,
+        "Very Low Income": 48,
+        "Low Income": 7
+      },
+      "total_income_restricted_units": 144,
+      "total_units": 144,
+      "bbl": "4021590002",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/4021590002"
+    },
+    {
+      "project_name": "FOREST HILLS MHA HDFC.HRP.FY19",
+      "address": "110-01 62 DRIVE",
+      "zip": "11375",
+      "neighborhood": "Forest Hills / Queens",
+      "units_by_tier": {
+        "Extremely Low Income": 107,
+        "Very Low Income": 30,
+        "Low Income": 7
+      },
+      "total_income_restricted_units": 144,
+      "total_units": 144,
+      "bbl": "4021590002",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/4021590002"
+    },
+    {
+      "project_name": "FOREST HILLS MHA HDFC.HRP.FY19",
+      "address": "62-27 108 STREET",
+      "zip": "11375",
+      "neighborhood": "Forest Hills / Queens",
+      "units_by_tier": {
+        "Extremely Low Income": 91,
+        "Very Low Income": 44,
+        "Low Income": 7
+      },
+      "total_income_restricted_units": 142,
+      "total_units": 142,
+      "bbl": "4021590002",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/4021590002"
     },
     {
       "project_name": "STATE PRESERVATION.HPO.FY26",
@@ -214,13 +322,76 @@
       "zip": "11374",
       "neighborhood": "Rego Park",
       "units_by_tier": {
+        "Extremely Low Income": 5,
+        "Very Low Income": 39,
         "Low Income": 49,
         "Moderate Income": 36
       },
-      "total_income_restricted_units": 85,
+      "total_income_restricted_units": 129,
       "total_units": 130,
       "bbl": "4020900026",
       "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/4020900026"
+    },
+    {
+      "project_name": "STATE PRESERVATION.HPO.FY26",
+      "address": "65-44 SAUNDERS STREET",
+      "zip": "11374",
+      "neighborhood": "Rego Park",
+      "units_by_tier": {
+        "Extremely Low Income": 4,
+        "Very Low Income": 26,
+        "Low Income": 38,
+        "Moderate Income": 31
+      },
+      "total_income_restricted_units": 99,
+      "total_units": 99,
+      "bbl": "4030870007",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/4030870007"
+    },
+    {
+      "project_name": "STATE PRESERVATION.HPO.FY26",
+      "address": "97-50 QUEENS BOULEVARD",
+      "zip": "11374",
+      "neighborhood": "Rego Park",
+      "units_by_tier": {
+        "Extremely Low Income": 5,
+        "Very Low Income": 20,
+        "Low Income": 50,
+        "Moderate Income": 22
+      },
+      "total_income_restricted_units": 97,
+      "total_units": 98,
+      "bbl": "4030840020",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/4030840020"
+    },
+    {
+      "project_name": "Marine Terrace Apartments",
+      "address": "20-25 SHORE BOULEVARD",
+      "zip": "11105",
+      "neighborhood": "Astoria",
+      "units_by_tier": {
+        "Extremely Low Income": 48,
+        "Very Low Income": 32,
+        "Low Income": 4
+      },
+      "total_income_restricted_units": 84,
+      "total_units": 84,
+      "bbl": "4008940101",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/4008940101"
+    },
+    {
+      "project_name": "19-80 STEINWAY LLC.PLP.FY26._(VESTA STEINWAY LOAN INCREASE)",
+      "address": "19-73 38 STREET",
+      "zip": "11105",
+      "neighborhood": "Astoria",
+      "units_by_tier": {
+        "Very Low Income": 16,
+        "Low Income": 67
+      },
+      "total_income_restricted_units": 83,
+      "total_units": 84,
+      "bbl": "4008110001",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/4008110001"
     },
     {
       "project_name": "Vesta Steinway",
@@ -237,45 +408,155 @@
       "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/4008110001"
     },
     {
-      "project_name": "STATE PRESERVATION.HPO.FY26",
-      "address": "97-50 QUEENS BOULEVARD",
-      "zip": "11374",
-      "neighborhood": "Rego Park",
+      "project_name": "LA CABANA HOUSES",
+      "address": "391 LORIMER STREET",
+      "zip": "11206",
+      "neighborhood": "Brooklyn",
       "units_by_tier": {
-        "Low Income": 50,
-        "Moderate Income": 22
+        "Extremely Low Income": 59,
+        "Very Low Income": 7,
+        "Low Income": 4
       },
-      "total_income_restricted_units": 72,
-      "total_units": 98,
-      "bbl": "4030840020",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/4030840020"
+      "total_income_restricted_units": 70,
+      "total_units": 71,
+      "bbl": "3030310018",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3030310018"
     },
     {
-      "project_name": "STATE PRESERVATION.HPO.FY26",
-      "address": "65-44 SAUNDERS STREET",
-      "zip": "11374",
-      "neighborhood": "Rego Park",
+      "project_name": "Monsignor Alexius Jarka Hall",
+      "address": "268 BEDFORD AVENUE",
+      "zip": "11249",
+      "neighborhood": "Brooklyn",
       "units_by_tier": {
-        "Low Income": 38,
-        "Moderate Income": 31
+        "Extremely Low Income": 55,
+        "Very Low Income": 4,
+        "Low Income": 4
       },
-      "total_income_restricted_units": 69,
-      "total_units": 99,
-      "bbl": "4030870007",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/4030870007"
+      "total_income_restricted_units": 63,
+      "total_units": 63,
+      "bbl": "3023650019",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3023650019"
     },
     {
-      "project_name": "19-80 STEINWAY LLC.PLP.FY26._(VESTA STEINWAY LOAN INCREASE)",
-      "address": "19-73 38 STREET",
+      "project_name": "Marine Terrace Apartments",
+      "address": "20-11 18 STREET",
       "zip": "11105",
       "neighborhood": "Astoria",
       "units_by_tier": {
-        "Low Income": 67
+        "Extremely Low Income": 50,
+        "Low Income": 10
       },
-      "total_income_restricted_units": 67,
-      "total_units": 84,
-      "bbl": "4008110001",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/4008110001"
+      "total_income_restricted_units": 60,
+      "total_units": 60,
+      "bbl": "4008940002",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/4008940002"
+    },
+    {
+      "project_name": "Marine Terrace Apartments",
+      "address": "20-31 19 STREET",
+      "zip": "11105",
+      "neighborhood": "Astoria",
+      "units_by_tier": {
+        "Extremely Low Income": 50,
+        "Very Low Income": 9,
+        "Low Income": 1
+      },
+      "total_income_restricted_units": 60,
+      "total_units": 60,
+      "bbl": "4008930020",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/4008930020"
+    },
+    {
+      "project_name": "Marine Terrace Apartments",
+      "address": "20-11 20 STREET",
+      "zip": "11105",
+      "neighborhood": "Astoria",
+      "units_by_tier": {
+        "Extremely Low Income": 50,
+        "Very Low Income": 8,
+        "Low Income": 2
+      },
+      "total_income_restricted_units": 60,
+      "total_units": 60,
+      "bbl": "4008930050",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/4008930050"
+    },
+    {
+      "project_name": "Marine Terrace Apartments",
+      "address": "20-12 20 STREET",
+      "zip": "11105",
+      "neighborhood": "Astoria",
+      "units_by_tier": {
+        "Extremely Low Income": 50,
+        "Very Low Income": 8,
+        "Low Income": 2
+      },
+      "total_income_restricted_units": 60,
+      "total_units": 60,
+      "bbl": "4008930030",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/4008930030"
+    },
+    {
+      "project_name": "Marine Terrace Apartments",
+      "address": "20-05 SHORE BOULEVARD",
+      "zip": "11105",
+      "neighborhood": "Astoria",
+      "units_by_tier": {
+        "Extremely Low Income": 50,
+        "Very Low Income": 1,
+        "Low Income": 7,
+        "Moderate Income": 2
+      },
+      "total_income_restricted_units": 60,
+      "total_units": 60,
+      "bbl": "4008940075",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/4008940075"
+    },
+    {
+      "project_name": "Marine Terrace Apartments",
+      "address": "20-32 19 STREET",
+      "zip": "11105",
+      "neighborhood": "Astoria",
+      "units_by_tier": {
+        "Extremely Low Income": 50,
+        "Low Income": 6,
+        "Moderate Income": 4
+      },
+      "total_income_restricted_units": 60,
+      "total_units": 60,
+      "bbl": "4008940020",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/4008940020"
+    },
+    {
+      "project_name": "STATE PRESERVATION.HPO.FY26",
+      "address": "64-85 WETHEROLE STREET",
+      "zip": "11374",
+      "neighborhood": "Rego Park",
+      "units_by_tier": {
+        "Extremely Low Income": 4,
+        "Very Low Income": 14,
+        "Low Income": 24,
+        "Moderate Income": 13
+      },
+      "total_income_restricted_units": 55,
+      "total_units": 56,
+      "bbl": "4030970038",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/4030970038"
+    },
+    {
+      "project_name": "65-60 AUSTIN STREET",
+      "address": "65-60 AUSTIN STREET",
+      "zip": "11374",
+      "neighborhood": "Rego Park",
+      "units_by_tier": {
+        "Very Low Income": 1,
+        "Low Income": 29,
+        "Moderate Income": 20
+      },
+      "total_income_restricted_units": 50,
+      "total_units": 50,
+      "bbl": null,
+      "portal_url": null
     },
     {
       "project_name": "41 WHIPPLE ST (LOS SURES PHASE 1)",
@@ -291,18 +572,35 @@
       "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3022730026"
     },
     {
-      "project_name": "65-60 AUSTIN STREET",
-      "address": "65-60 AUSTIN STREET",
-      "zip": "11374",
-      "neighborhood": "Rego Park",
+      "project_name": "LA CABANA HOUSES",
+      "address": "417 LORIMER STREET",
+      "zip": "11206",
+      "neighborhood": "Brooklyn",
       "units_by_tier": {
-        "Low Income": 29,
-        "Moderate Income": 20
+        "Extremely Low Income": 40,
+        "Very Low Income": 5,
+        "Low Income": 3
       },
-      "total_income_restricted_units": 49,
-      "total_units": 50,
-      "bbl": null,
-      "portal_url": null
+      "total_income_restricted_units": 48,
+      "total_units": 48,
+      "bbl": "3030220025",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3030220025"
+    },
+    {
+      "project_name": "LA CABANA HOUSES",
+      "address": "16 TEN EYCK STREET",
+      "zip": "11206",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Extremely Low Income": 41,
+        "Very Low Income": 4,
+        "Low Income": 2,
+        "Moderate Income": 1
+      },
+      "total_income_restricted_units": 48,
+      "total_units": 48,
+      "bbl": "3030220016",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3030220016"
     },
     {
       "project_name": "106 GERRY STREET",
@@ -318,18 +616,88 @@
       "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3022700001"
     },
     {
-      "project_name": "STATE PRESERVATION.HPO.FY26",
-      "address": "64-85 WETHEROLE STREET",
-      "zip": "11374",
-      "neighborhood": "Rego Park",
+      "project_name": "340 SOUTH THIRD STREET HDFC.GHPP.FY21",
+      "address": "338 SOUTH 3 STREET",
+      "zip": "11211",
+      "neighborhood": "Brooklyn",
       "units_by_tier": {
-        "Low Income": 24,
-        "Moderate Income": 13
+        "Extremely Low Income": 31,
+        "Very Low Income": 10
       },
-      "total_income_restricted_units": 37,
-      "total_units": 56,
-      "bbl": "4030970038",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/4030970038"
+      "total_income_restricted_units": 41,
+      "total_units": 41,
+      "bbl": "3024370011",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024370011"
+    },
+    {
+      "project_name": "KENT VILLAGE",
+      "address": "111 CLYMER STREET",
+      "zip": "11249",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Very Low Income": 38,
+        "Low Income": 1
+      },
+      "total_income_restricted_units": 39,
+      "total_units": 39,
+      "bbl": "3021660001",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3021660001"
+    },
+    {
+      "project_name": "KENT VILLAGE",
+      "address": "115 CLYMER STREET",
+      "zip": "11249",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Very Low Income": 35,
+        "Low Income": 4
+      },
+      "total_income_restricted_units": 39,
+      "total_units": 39,
+      "bbl": "3021660001",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3021660001"
+    },
+    {
+      "project_name": "STATE PRESERVATION.HPO.FY26",
+      "address": "67-15 DARTMOUTH STREET",
+      "zip": "11375",
+      "neighborhood": "Forest Hills / Queens",
+      "units_by_tier": {
+        "Extremely Low Income": 1,
+        "Very Low Income": 4,
+        "Low Income": 26,
+        "Moderate Income": 7
+      },
+      "total_income_restricted_units": 38,
+      "total_units": 38,
+      "bbl": "4031640054",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/4031640054"
+    },
+    {
+      "project_name": "CARIBE GDNS",
+      "address": "144 HUMBOLDT STREET",
+      "zip": "11206",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Very Low Income": 36
+      },
+      "total_income_restricted_units": 36,
+      "total_units": 36,
+      "bbl": "3030720001",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3030720001"
+    },
+    {
+      "project_name": "CARIBE GDNS",
+      "address": "193 BOERUM STREET",
+      "zip": "11206",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Very Low Income": 36
+      },
+      "total_income_restricted_units": 36,
+      "total_units": 36,
+      "bbl": "3030720001",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3030720001"
     },
     {
       "project_name": "PACC ABCCD RESYNDICATION",
@@ -345,6 +713,93 @@
       "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3017690011"
     },
     {
+      "project_name": "KENT VILLAGE",
+      "address": "50 DIVISION AVENUE",
+      "zip": "11249",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Very Low Income": 35
+      },
+      "total_income_restricted_units": 35,
+      "total_units": 36,
+      "bbl": "3021660001",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3021660001"
+    },
+    {
+      "project_name": "KENT VILLAGE",
+      "address": "64 DIVISION AVENUE",
+      "zip": "11249",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Very Low Income": 33,
+        "Low Income": 2
+      },
+      "total_income_restricted_units": 35,
+      "total_units": 36,
+      "bbl": "3021660001",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3021660001"
+    },
+    {
+      "project_name": "BUFF 236-1 DEVELOPMENT ASSOCIATES.HPO.FY23",
+      "address": "269 SOUTH 2 STREET",
+      "zip": "11211",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Extremely Low Income": 2,
+        "Very Low Income": 1,
+        "Low Income": 1,
+        "Moderate Income": 30
+      },
+      "total_income_restricted_units": 34,
+      "total_units": 35,
+      "bbl": "3024090027",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024090027"
+    },
+    {
+      "project_name": "BUFF 236-1 DEVELOPMENT ASSOCIATES.HPO.FY23",
+      "address": "213 SOUTH 3 STREET",
+      "zip": "11211",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Extremely Low Income": 4,
+        "Moderate Income": 30
+      },
+      "total_income_restricted_units": 34,
+      "total_units": 35,
+      "bbl": "3024200041",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024200041"
+    },
+    {
+      "project_name": "GROWER-GREEN",
+      "address": "367 SOUTH 2 STREET",
+      "zip": "11211",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Extremely Low Income": 24,
+        "Very Low Income": 7,
+        "Moderate Income": 3
+      },
+      "total_income_restricted_units": 34,
+      "total_units": 35,
+      "bbl": "3024120027",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024120027"
+    },
+    {
+      "project_name": "BEC CONTINUUM HDFC.YR15.FY2017",
+      "address": "736 WILLOUGHBY AVENUE",
+      "zip": "11206",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Very Low Income": 11,
+        "Low Income": 19,
+        "Moderate Income": 4
+      },
+      "total_income_restricted_units": 34,
+      "total_units": 35,
+      "bbl": "3015910017",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3015910017"
+    },
+    {
       "project_name": "101 SOUTH 3RD ST (LOS SURES PHASE 1)",
       "address": "103 SOUTH 3 STREET",
       "zip": "11249",
@@ -358,45 +813,259 @@
       "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024170039"
     },
     {
-      "project_name": "STATE PRESERVATION.HPO.FY26",
-      "address": "67-15 DARTMOUTH STREET",
-      "zip": "11375",
-      "neighborhood": "Forest Hills / Queens",
-      "units_by_tier": {
-        "Low Income": 26,
-        "Moderate Income": 7
-      },
-      "total_income_restricted_units": 33,
-      "total_units": 38,
-      "bbl": "4031640054",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/4031640054"
-    },
-    {
-      "project_name": "BUFF 236-1 DEVELOPMENT ASSOCIATES.HPO.FY23",
-      "address": "269 SOUTH 2 STREET",
+      "project_name": "GROWER-GREEN",
+      "address": "362 SOUTH 2 STREET",
       "zip": "11211",
       "neighborhood": "Brooklyn",
       "units_by_tier": {
+        "Extremely Low Income": 15,
+        "Very Low Income": 8,
+        "Low Income": 6
+      },
+      "total_income_restricted_units": 29,
+      "total_units": 30,
+      "bbl": "3024240012",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024240012"
+    },
+    {
+      "project_name": "RODNEY DRIGGS AND SOUTH THIRD STREET HDFC.YR15.FY19",
+      "address": "778 DRIGGS AVENUE",
+      "zip": "11211",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Very Low Income": 28
+      },
+      "total_income_restricted_units": 28,
+      "total_units": 29,
+      "bbl": "3024310025",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024310025"
+    },
+    {
+      "project_name": "GROWER-GREEN",
+      "address": "350 KEAP STREET",
+      "zip": "11211",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Extremely Low Income": 16,
+        "Very Low Income": 8,
+        "Low Income": 4
+      },
+      "total_income_restricted_units": 28,
+      "total_units": 29,
+      "bbl": "3024370003",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024370003"
+    },
+    {
+      "project_name": "GROWER-GREEN",
+      "address": "354 SOUTH 2 STREET",
+      "zip": "11211",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Extremely Low Income": 16,
+        "Very Low Income": 7,
+        "Low Income": 3,
+        "Moderate Income": 1,
+        "Middle Income": 1
+      },
+      "total_income_restricted_units": 28,
+      "total_units": 29,
+      "bbl": "3024240006",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024240006"
+    },
+    {
+      "project_name": "GROWER-GREEN",
+      "address": "247 SOUTH 3 STREET",
+      "zip": "11211",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Extremely Low Income": 20,
+        "Very Low Income": 4,
+        "Low Income": 2,
+        "Moderate Income": 2
+      },
+      "total_income_restricted_units": 28,
+      "total_units": 29,
+      "bbl": "3024210035",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024210035"
+    },
+    {
+      "project_name": "GROWER-GREEN",
+      "address": "347 SOUTH 3 STREET",
+      "zip": "11211",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Extremely Low Income": 16,
+        "Very Low Income": 4,
+        "Low Income": 6,
+        "Moderate Income": 2
+      },
+      "total_income_restricted_units": 28,
+      "total_units": 29,
+      "bbl": "3024240035",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024240035"
+    },
+    {
+      "project_name": "GROWER-GREEN",
+      "address": "358 SOUTH 2 STREET",
+      "zip": "11211",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Extremely Low Income": 14,
+        "Very Low Income": 5,
+        "Low Income": 4,
+        "Moderate Income": 4
+      },
+      "total_income_restricted_units": 27,
+      "total_units": 27,
+      "bbl": "3024240009",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024240009"
+    },
+    {
+      "project_name": "FSG DEVELOPMENT FCM - FSG REALTY LLC",
+      "address": "892 FLUSHING AVENUE",
+      "zip": "11206",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Extremely Low Income": 21,
+        "Low Income": 5
+      },
+      "total_income_restricted_units": 26,
+      "total_units": 27,
+      "bbl": "3031390012",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3031390012"
+    },
+    {
+      "project_name": "TBK1001A - LOS SURES",
+      "address": "160 SOUTH 2 STREET",
+      "zip": "11211",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Extremely Low Income": 23,
+        "Very Low Income": 1
+      },
+      "total_income_restricted_units": 24,
+      "total_units": 25,
+      "bbl": "3024180018",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024180018"
+    },
+    {
+      "project_name": "LOS SURES SIP HDFC.GHPP.FY24",
+      "address": "188 SOUTH 2 STREET",
+      "zip": "11211",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Extremely Low Income": 1,
+        "Very Low Income": 22,
+        "Low Income": 1
+      },
+      "total_income_restricted_units": 24,
+      "total_units": 24,
+      "bbl": "3024190012",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024190012"
+    },
+    {
+      "project_name": "SUMET I.HUDMF.FY24",
+      "address": "234 SOUTH 1 STREET",
+      "zip": "11211",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Extremely Low Income": 18,
+        "Very Low Income": 6
+      },
+      "total_income_restricted_units": 24,
+      "total_units": 24,
+      "bbl": "3024080014",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024080014"
+    },
+    {
+      "project_name": "BUFF 236-1 DEVELOPMENT ASSOCIATES.HPO.FY23",
+      "address": "260 SOUTH 1 STREET",
+      "zip": "11211",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Extremely Low Income": 3,
         "Low Income": 1,
-        "Moderate Income": 30
+        "Moderate Income": 20
       },
-      "total_income_restricted_units": 31,
-      "total_units": 35,
-      "bbl": "3024090027",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024090027"
+      "total_income_restricted_units": 24,
+      "total_units": 24,
+      "bbl": "3024090008",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024090008"
     },
     {
       "project_name": "BUFF 236-1 DEVELOPMENT ASSOCIATES.HPO.FY23",
-      "address": "213 SOUTH 3 STREET",
+      "address": "262 SOUTH 1 STREET",
       "zip": "11211",
       "neighborhood": "Brooklyn",
       "units_by_tier": {
-        "Moderate Income": 30
+        "Extremely Low Income": 1,
+        "Very Low Income": 8,
+        "Low Income": 7,
+        "Moderate Income": 8
       },
-      "total_income_restricted_units": 30,
-      "total_units": 35,
-      "bbl": "3024200041",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024200041"
+      "total_income_restricted_units": 24,
+      "total_units": 24,
+      "bbl": "3024090009",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024090009"
+    },
+    {
+      "project_name": "RODNEY DRIGGS AND SOUTH THIRD STREET HDFC.YR15.FY19",
+      "address": "296 SOUTH 3 STREET",
+      "zip": "11211",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Extremely Low Income": 1,
+        "Very Low Income": 20,
+        "Low Income": 3
+      },
+      "total_income_restricted_units": 24,
+      "total_units": 24,
+      "bbl": "3024360004",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024360004"
+    },
+    {
+      "project_name": "GROWER-GREEN",
+      "address": "355 SOUTH 2 STREET",
+      "zip": "11211",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Extremely Low Income": 13,
+        "Very Low Income": 9,
+        "Moderate Income": 2
+      },
+      "total_income_restricted_units": 24,
+      "total_units": 24,
+      "bbl": "3024120033",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024120033"
+    },
+    {
+      "project_name": "GROWER-GREEN",
+      "address": "370 SOUTH 2 STREET",
+      "zip": "11211",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Extremely Low Income": 16,
+        "Very Low Income": 5,
+        "Low Income": 1,
+        "Moderate Income": 2
+      },
+      "total_income_restricted_units": 24,
+      "total_units": 24,
+      "bbl": "3024240016",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024240016"
+    },
+    {
+      "project_name": "CARIBE GDNS",
+      "address": "139 HUMBOLDT STREET",
+      "zip": "11206",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Very Low Income": 24
+      },
+      "total_income_restricted_units": 24,
+      "total_units": 24,
+      "bbl": "3030710010",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3030710010"
     },
     {
       "project_name": "PACC ABCCD RESYNDICATION",
@@ -410,6 +1079,36 @@
       "total_units": 24,
       "bbl": "3017690009",
       "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3017690009"
+    },
+    {
+      "project_name": "LOS SURES SIP HDFC.GHPP.FY24",
+      "address": "262 GRAND STREET",
+      "zip": "11211",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Extremely Low Income": 2,
+        "Very Low Income": 14,
+        "Low Income": 7
+      },
+      "total_income_restricted_units": 23,
+      "total_units": 23,
+      "bbl": "3023940020",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3023940020"
+    },
+    {
+      "project_name": "BUFF 236-1 DEVELOPMENT ASSOCIATES.HPO.FY23",
+      "address": "68 MARCY AVENUE",
+      "zip": "11211",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Very Low Income": 2,
+        "Low Income": 1,
+        "Moderate Income": 20
+      },
+      "total_income_restricted_units": 23,
+      "total_units": 24,
+      "bbl": "3023960021",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3023960021"
     },
     {
       "project_name": "BUFF 236-1 DEVELOPMENT ASSOCIATES.HPO.FY23",
@@ -439,18 +1138,52 @@
       "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024090015"
     },
     {
-      "project_name": "BEC CONTINUUM HDFC.YR15.FY2017",
-      "address": "736 WILLOUGHBY AVENUE",
-      "zip": "11206",
+      "project_name": "GROWER-GREEN",
+      "address": "359 SOUTH 2 STREET",
+      "zip": "11211",
       "neighborhood": "Brooklyn",
       "units_by_tier": {
-        "Low Income": 19,
-        "Moderate Income": 4
+        "Extremely Low Income": 11,
+        "Very Low Income": 8,
+        "Low Income": 3,
+        "Moderate Income": 1
       },
       "total_income_restricted_units": 23,
-      "total_units": 35,
-      "bbl": "3015910017",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3015910017"
+      "total_units": 24,
+      "bbl": "3024120030",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024120030"
+    },
+    {
+      "project_name": "GROWER-GREEN",
+      "address": "366 SOUTH 2 STREET",
+      "zip": "11211",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Extremely Low Income": 14,
+        "Very Low Income": 6,
+        "Low Income": 2,
+        "Moderate Income": 1
+      },
+      "total_income_restricted_units": 23,
+      "total_units": 24,
+      "bbl": "3024240014",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024240014"
+    },
+    {
+      "project_name": "GROWER-GREEN",
+      "address": "385 SOUTH 2 STREET",
+      "zip": "11211",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Extremely Low Income": 18,
+        "Very Low Income": 1,
+        "Low Income": 2,
+        "Moderate Income": 1
+      },
+      "total_income_restricted_units": 22,
+      "total_units": 22,
+      "bbl": "3024130031",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024130031"
     },
     {
       "project_name": "140 JOHNSON AVENUE",
@@ -466,32 +1199,48 @@
       "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3030700010"
     },
     {
-      "project_name": "BUFF 236-1 DEVELOPMENT ASSOCIATES.HPO.FY23",
-      "address": "68 MARCY AVENUE",
+      "project_name": "LOS SURES SIP HDFC.GHPP.FY24",
+      "address": "747 DRIGGS AVENUE",
       "zip": "11211",
       "neighborhood": "Brooklyn",
       "units_by_tier": {
-        "Low Income": 1,
-        "Moderate Income": 20
+        "Very Low Income": 16,
+        "Low Income": 5
       },
       "total_income_restricted_units": 21,
-      "total_units": 24,
-      "bbl": "3023960021",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3023960021"
+      "total_units": 21,
+      "bbl": "3024190007",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024190007"
     },
     {
       "project_name": "BUFF 236-1 DEVELOPMENT ASSOCIATES.HPO.FY23",
-      "address": "260 SOUTH 1 STREET",
+      "address": "279 SOUTH 1 STREET",
       "zip": "11211",
       "neighborhood": "Brooklyn",
       "units_by_tier": {
-        "Low Income": 1,
+        "Extremely Low Income": 1,
         "Moderate Income": 20
       },
       "total_income_restricted_units": 21,
-      "total_units": 24,
-      "bbl": "3024090008",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024090008"
+      "total_units": 22,
+      "bbl": "3023960027",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3023960027"
+    },
+    {
+      "project_name": "GROWER-GREEN",
+      "address": "373 SOUTH 2 STREET",
+      "zip": "11211",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Extremely Low Income": 12,
+        "Very Low Income": 5,
+        "Low Income": 2,
+        "Moderate Income": 2
+      },
+      "total_income_restricted_units": 21,
+      "total_units": 22,
+      "bbl": "3024120025",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024120025"
     },
     {
       "project_name": "907 Driggs Avenue",
@@ -521,17 +1270,63 @@
       "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024380020"
     },
     {
-      "project_name": "BUFF 236-1 DEVELOPMENT ASSOCIATES.HPO.FY23",
-      "address": "279 SOUTH 1 STREET",
+      "project_name": "LOS SURES SIP HDFC.GHPP.FY24",
+      "address": "201 SOUTH 4 STREET",
       "zip": "11211",
       "neighborhood": "Brooklyn",
       "units_by_tier": {
-        "Moderate Income": 20
+        "Very Low Income": 12,
+        "Low Income": 8
       },
       "total_income_restricted_units": 20,
-      "total_units": 22,
-      "bbl": "3023960027",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3023960027"
+      "total_units": 21,
+      "bbl": "3024320025",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024320025"
+    },
+    {
+      "project_name": "SUMET I.HUDMF.FY24",
+      "address": "226 SOUTH 1 STREET",
+      "zip": "11211",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Extremely Low Income": 15,
+        "Very Low Income": 2,
+        "Low Income": 3
+      },
+      "total_income_restricted_units": 20,
+      "total_units": 21,
+      "bbl": "3024080007",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024080007"
+    },
+    {
+      "project_name": "SUMET I.HUDMF.FY24",
+      "address": "209 SOUTH 3 STREET",
+      "zip": "11211",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Extremely Low Income": 15,
+        "Very Low Income": 3,
+        "Low Income": 2
+      },
+      "total_income_restricted_units": 20,
+      "total_units": 20,
+      "bbl": "3024200043",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024200043"
+    },
+    {
+      "project_name": "BUFF 236-1 DEVELOPMENT ASSOCIATES.HPO.FY23",
+      "address": "244 SOUTH 3 STREET",
+      "zip": "11211",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Extremely Low Income": 2,
+        "Low Income": 1,
+        "Moderate Income": 17
+      },
+      "total_income_restricted_units": 20,
+      "total_units": 21,
+      "bbl": "3024340008",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024340008"
     },
     {
       "project_name": "PACC ABCCD RESYNDICATION",
@@ -547,58 +1342,106 @@
       "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3017740010"
     },
     {
-      "project_name": "BUFF 236-1 DEVELOPMENT ASSOCIATES.HPO.FY23",
-      "address": "244 SOUTH 3 STREET",
+      "project_name": "SUMET I.HUDMF.FY24",
+      "address": "208 SOUTH 1 STREET",
       "zip": "11211",
       "neighborhood": "Brooklyn",
       "units_by_tier": {
-        "Low Income": 1,
-        "Moderate Income": 17
+        "Extremely Low Income": 18,
+        "Very Low Income": 1
+      },
+      "total_income_restricted_units": 19,
+      "total_units": 19,
+      "bbl": "3024070017",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024070017"
+    },
+    {
+      "project_name": "SUMET I.HUDMF.FY24",
+      "address": "228 SOUTH 1 STREET",
+      "zip": "11211",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Extremely Low Income": 17,
+        "Very Low Income": 2
+      },
+      "total_income_restricted_units": 19,
+      "total_units": 20,
+      "bbl": "3024080012",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024080012"
+    },
+    {
+      "project_name": "RODNEY DRIGGS AND SOUTH THIRD STREET HDFC.YR15.FY19",
+      "address": "334 SOUTH 3 STREET",
+      "zip": "11211",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Extremely Low Income": 4,
+        "Very Low Income": 14
       },
       "total_income_restricted_units": 18,
-      "total_units": 21,
-      "bbl": "3024340008",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024340008"
+      "total_units": 18,
+      "bbl": "3024370009",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024370009"
     },
     {
-      "project_name": "BUFF 236-1 DEVELOPMENT ASSOCIATES.HPO.FY23",
-      "address": "262 SOUTH 1 STREET",
+      "project_name": "LOS SURES SIP HDFC.GHPP.FY24",
+      "address": "184 SOUTH 2 STREET",
       "zip": "11211",
       "neighborhood": "Brooklyn",
       "units_by_tier": {
-        "Low Income": 7,
-        "Moderate Income": 8
+        "Extremely Low Income": 1,
+        "Very Low Income": 13,
+        "Low Income": 3
       },
-      "total_income_restricted_units": 15,
-      "total_units": 24,
-      "bbl": "3024090009",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024090009"
+      "total_income_restricted_units": 17,
+      "total_units": 18,
+      "bbl": "3024190009",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024190009"
     },
     {
-      "project_name": "KENT VILLAGE",
-      "address": "60 DIVISION AVENUE",
-      "zip": "11249",
+      "project_name": "SUMET I.HUDMF.FY24",
+      "address": "215 ROEBLING STREET",
+      "zip": "11211",
       "neighborhood": "Brooklyn",
       "units_by_tier": {
-        "Low Income": 15
+        "Extremely Low Income": 15,
+        "Very Low Income": 1,
+        "Moderate Income": 1
       },
-      "total_income_restricted_units": 15,
-      "total_units": 192,
-      "bbl": "3021660001",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3021660001"
+      "total_income_restricted_units": 17,
+      "total_units": 17,
+      "bbl": "3024200005",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024200005"
     },
     {
-      "project_name": "BEC Phase 1",
-      "address": "8 VERNON AVENUE",
-      "zip": "11206",
+      "project_name": "LOS SURES SIP HDFC.GHPP.FY24",
+      "address": "249 SOUTH 1 STREET",
+      "zip": "11211",
       "neighborhood": "Brooklyn",
       "units_by_tier": {
-        "Low Income": 15
+        "Extremely Low Income": 2,
+        "Very Low Income": 11,
+        "Low Income": 3
       },
-      "total_income_restricted_units": 15,
+      "total_income_restricted_units": 16,
+      "total_units": 17,
+      "bbl": "3023950025",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3023950025"
+    },
+    {
+      "project_name": "SUMET I.HUDMF.FY24",
+      "address": "237 SOUTH 2 STREET",
+      "zip": "11211",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Extremely Low Income": 12,
+        "Very Low Income": 2,
+        "Low Income": 2
+      },
+      "total_income_restricted_units": 16,
       "total_units": 16,
-      "bbl": "3017580009",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3017580009"
+      "bbl": "3024080037",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024080037"
     },
     {
       "project_name": "BEC Phase 1",
@@ -606,9 +1449,10 @@
       "zip": "11206",
       "neighborhood": "Brooklyn",
       "units_by_tier": {
+        "Very Low Income": 2,
         "Low Income": 14
       },
-      "total_income_restricted_units": 14,
+      "total_income_restricted_units": 16,
       "total_units": 16,
       "bbl": "3017580012",
       "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3017580012"
@@ -619,25 +1463,86 @@
       "zip": "11206",
       "neighborhood": "Brooklyn",
       "units_by_tier": {
+        "Very Low Income": 3,
         "Low Income": 13
       },
-      "total_income_restricted_units": 13,
+      "total_income_restricted_units": 16,
       "total_units": 16,
       "bbl": "3017580014",
       "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3017580014"
     },
     {
-      "project_name": "KENT VILLAGE",
-      "address": "541 WYTHE AVENUE",
-      "zip": "11249",
+      "project_name": "BEC Phase 1",
+      "address": "4 VERNON AVENUE",
+      "zip": "11206",
       "neighborhood": "Brooklyn",
       "units_by_tier": {
+        "Very Low Income": 4,
         "Low Income": 12
       },
-      "total_income_restricted_units": 12,
-      "total_units": 192,
-      "bbl": "3021660001",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3021660001"
+      "total_income_restricted_units": 16,
+      "total_units": 17,
+      "bbl": "3017580005",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3017580005"
+    },
+    {
+      "project_name": "BEC Phase 1",
+      "address": "8 VERNON AVENUE",
+      "zip": "11206",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Very Low Income": 1,
+        "Low Income": 15
+      },
+      "total_income_restricted_units": 16,
+      "total_units": 16,
+      "bbl": "3017580009",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3017580009"
+    },
+    {
+      "project_name": "SUMET I.HUDMF.FY24",
+      "address": "198 SOUTH 1 STREET",
+      "zip": "11211",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Extremely Low Income": 12,
+        "Very Low Income": 1,
+        "Low Income": 2
+      },
+      "total_income_restricted_units": 15,
+      "total_units": 15,
+      "bbl": "3024070012",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024070012"
+    },
+    {
+      "project_name": "SUMET I.HUDMF.FY24",
+      "address": "202 SOUTH 1 STREET",
+      "zip": "11211",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Extremely Low Income": 14,
+        "Very Low Income": 1
+      },
+      "total_income_restricted_units": 15,
+      "total_units": 15,
+      "bbl": "3024070014",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024070014"
+    },
+    {
+      "project_name": "SUMET I.HUDMF.FY24",
+      "address": "204 SOUTH 1 STREET",
+      "zip": "11211",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Extremely Low Income": 8,
+        "Very Low Income": 3,
+        "Low Income": 1,
+        "Moderate Income": 1
+      },
+      "total_income_restricted_units": 13,
+      "total_units": 13,
+      "bbl": "3024070015",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024070015"
     },
     {
       "project_name": "NEIGHBORHOOD WOMEN HDFC",
@@ -666,17 +1571,32 @@
       "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3028850023"
     },
     {
-      "project_name": "BEC Phase 1",
-      "address": "4 VERNON AVENUE",
+      "project_name": "CARIBE GDNS",
+      "address": "190 JOHNSON AVENUE",
       "zip": "11206",
       "neighborhood": "Brooklyn",
       "units_by_tier": {
-        "Low Income": 12
+        "Very Low Income": 12
       },
       "total_income_restricted_units": 12,
-      "total_units": 17,
-      "bbl": "3017580005",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3017580005"
+      "total_units": 12,
+      "bbl": "3030710010",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3030710010"
+    },
+    {
+      "project_name": "SUMET I.HUDMF.FY24",
+      "address": "233 SOUTH 2 STREET",
+      "zip": "11211",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Extremely Low Income": 9,
+        "Very Low Income": 1,
+        "Low Income": 1
+      },
+      "total_income_restricted_units": 11,
+      "total_units": 11,
+      "bbl": "3024080038",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024080038"
     },
     {
       "project_name": "NEIGHBORHOOD WOMEN HDFC",
@@ -692,31 +1612,32 @@
       "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3028850032"
     },
     {
-      "project_name": "Marine Terrace Apartments",
-      "address": "20-11 18 STREET",
-      "zip": "11105",
-      "neighborhood": "Astoria",
+      "project_name": "SUMET I.HUDMF.FY24",
+      "address": "231 SOUTH 2 STREET",
+      "zip": "11211",
+      "neighborhood": "Brooklyn",
       "units_by_tier": {
-        "Low Income": 10
+        "Extremely Low Income": 8,
+        "Very Low Income": 2
       },
       "total_income_restricted_units": 10,
-      "total_units": 60,
-      "bbl": "4008940002",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/4008940002"
+      "total_units": 10,
+      "bbl": "3024080040",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024080040"
     },
     {
-      "project_name": "Marine Terrace Apartments",
-      "address": "20-32 19 STREET",
-      "zip": "11105",
-      "neighborhood": "Astoria",
+      "project_name": "BUFF 236-1 DEVELOPMENT ASSOCIATES.HPO.FY23",
+      "address": "287 SOUTH 1 STREET",
+      "zip": "11211",
+      "neighborhood": "Brooklyn",
       "units_by_tier": {
-        "Low Income": 6,
-        "Moderate Income": 4
+        "Extremely Low Income": 1,
+        "Moderate Income": 8
       },
-      "total_income_restricted_units": 10,
-      "total_units": 60,
-      "bbl": "4008940020",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/4008940020"
+      "total_income_restricted_units": 9,
+      "total_units": 9,
+      "bbl": "3023960024",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3023960024"
     },
     {
       "project_name": "NEIGHBORHOOD WOMEN HDFC",
@@ -732,20 +1653,6 @@
       "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3028850028"
     },
     {
-      "project_name": "Marine Terrace Apartments",
-      "address": "20-05 SHORE BOULEVARD",
-      "zip": "11105",
-      "neighborhood": "Astoria",
-      "units_by_tier": {
-        "Low Income": 7,
-        "Moderate Income": 2
-      },
-      "total_income_restricted_units": 9,
-      "total_units": 60,
-      "bbl": "4008940075",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/4008940075"
-    },
-    {
       "project_name": "PACC ABCCD RESYNDICATION",
       "address": "126 PULASKI STREET",
       "zip": "11206",
@@ -759,123 +1666,61 @@
       "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3017750033"
     },
     {
-      "project_name": "LOS SURES SIP HDFC.GHPP.FY24",
-      "address": "201 SOUTH 4 STREET",
-      "zip": "11211",
-      "neighborhood": "Brooklyn",
-      "units_by_tier": {
-        "Low Income": 8
-      },
-      "total_income_restricted_units": 8,
-      "total_units": 21,
-      "bbl": "3024320025",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024320025"
-    },
-    {
-      "project_name": "BUFF 236-1 DEVELOPMENT ASSOCIATES.HPO.FY23",
-      "address": "287 SOUTH 1 STREET",
-      "zip": "11211",
-      "neighborhood": "Brooklyn",
-      "units_by_tier": {
-        "Moderate Income": 8
-      },
-      "total_income_restricted_units": 8,
-      "total_units": 9,
-      "bbl": "3023960024",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3023960024"
-    },
-    {
-      "project_name": "GROWER-GREEN",
-      "address": "358 SOUTH 2 STREET",
-      "zip": "11211",
-      "neighborhood": "Brooklyn",
-      "units_by_tier": {
-        "Low Income": 4,
-        "Moderate Income": 4
-      },
-      "total_income_restricted_units": 8,
-      "total_units": 27,
-      "bbl": "3024240009",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024240009"
-    },
-    {
-      "project_name": "GROWER-GREEN",
-      "address": "347 SOUTH 3 STREET",
-      "zip": "11211",
-      "neighborhood": "Brooklyn",
-      "units_by_tier": {
-        "Low Income": 6,
-        "Moderate Income": 2
-      },
-      "total_income_restricted_units": 8,
-      "total_units": 29,
-      "bbl": "3024240035",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024240035"
-    },
-    {
       "project_name": "HOUR APARTMENT LP.YR15.FY26",
       "address": "35-54 11 STREET",
       "zip": "11106",
       "neighborhood": "Astoria",
       "units_by_tier": {
+        "Very Low Income": 1,
         "Low Income": 7
       },
-      "total_income_restricted_units": 7,
+      "total_income_restricted_units": 8,
       "total_units": 8,
       "bbl": "4003300047",
       "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/4003300047"
     },
     {
-      "project_name": "LOS SURES SIP HDFC.GHPP.FY24",
-      "address": "262 GRAND STREET",
-      "zip": "11211",
+      "project_name": "TBK1001A - LOS SURES",
+      "address": "73 SOUTH 9 STREET",
+      "zip": "11249",
       "neighborhood": "Brooklyn",
       "units_by_tier": {
-        "Low Income": 7
+        "Extremely Low Income": 3,
+        "Very Low Income": 4
       },
       "total_income_restricted_units": 7,
-      "total_units": 23,
-      "bbl": "3023940020",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3023940020"
+      "total_units": 7,
+      "bbl": "3021360032",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3021360032"
     },
     {
-      "project_name": "FOREST HILLS MHA HDFC.HRP.FY19",
-      "address": "62-27 108 STREET",
-      "zip": "11375",
-      "neighborhood": "Forest Hills / Queens",
+      "project_name": "TBK1001A - LOS SURES",
+      "address": "27 BEAVER STREET",
+      "zip": "11206",
+      "neighborhood": "Brooklyn",
       "units_by_tier": {
-        "Low Income": 7
+        "Extremely Low Income": 5,
+        "Very Low Income": 1
       },
-      "total_income_restricted_units": 7,
-      "total_units": 142,
-      "bbl": "4021590002",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/4021590002"
+      "total_income_restricted_units": 6,
+      "total_units": 6,
+      "bbl": "3031330025",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3031330025"
     },
     {
-      "project_name": "FOREST HILLS MHA HDFC.HRP.FY19",
-      "address": "108-53 62 DRIVE",
-      "zip": "11375",
-      "neighborhood": "Forest Hills / Queens",
+      "project_name": "TBK1001A - LOS SURES",
+      "address": "60 NORTH 8 STREET",
+      "zip": "11249",
+      "neighborhood": "Brooklyn",
       "units_by_tier": {
-        "Low Income": 7
+        "Extremely Low Income": 3,
+        "Very Low Income": 1,
+        "Moderate Income": 2
       },
-      "total_income_restricted_units": 7,
-      "total_units": 144,
-      "bbl": "4021590002",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/4021590002"
-    },
-    {
-      "project_name": "FOREST HILLS MHA HDFC.HRP.FY19",
-      "address": "110-01 62 DRIVE",
-      "zip": "11375",
-      "neighborhood": "Forest Hills / Queens",
-      "units_by_tier": {
-        "Low Income": 7
-      },
-      "total_income_restricted_units": 7,
-      "total_units": 144,
-      "bbl": "4021590002",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/4021590002"
+      "total_income_restricted_units": 6,
+      "total_units": 6,
+      "bbl": "3023170010",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3023170010"
     },
     {
       "project_name": "NEIGHBORHOOD WOMEN HDFC",
@@ -891,17 +1736,44 @@
       "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3030970012"
     },
     {
-      "project_name": "GROWER-GREEN",
-      "address": "362 SOUTH 2 STREET",
-      "zip": "11211",
+      "project_name": "BEC CONTINUUM HDFC.YR15.FY2017",
+      "address": "171 TOMPKINS AVENUE",
+      "zip": "11206",
       "neighborhood": "Brooklyn",
       "units_by_tier": {
-        "Low Income": 6
+        "Extremely Low Income": 1,
+        "Very Low Income": 5
       },
       "total_income_restricted_units": 6,
-      "total_units": 30,
-      "bbl": "3024240012",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024240012"
+      "total_units": 6,
+      "bbl": "3017720010",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3017720010"
+    },
+    {
+      "project_name": "CARIBE GDNS",
+      "address": "161 BOERUM STREET",
+      "zip": "11206",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Very Low Income": 6
+      },
+      "total_income_restricted_units": 6,
+      "total_units": 6,
+      "bbl": "3030710010",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3030710010"
+    },
+    {
+      "project_name": "CARIBE GDNS",
+      "address": "189 BOERUM STREET",
+      "zip": "11206",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Very Low Income": 6
+      },
+      "total_income_restricted_units": 6,
+      "total_units": 7,
+      "bbl": "3030720001",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3030720001"
     },
     {
       "project_name": "PACC ABCCD RESYNDICATION",
@@ -917,17 +1789,34 @@
       "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3017750018"
     },
     {
-      "project_name": "LOS SURES SIP HDFC.GHPP.FY24",
-      "address": "747 DRIGGS AVENUE",
-      "zip": "11211",
+      "project_name": "B&R.YR15.FY25",
+      "address": "178 JEFFERSON STREET",
+      "zip": "11206",
       "neighborhood": "Brooklyn",
       "units_by_tier": {
-        "Low Income": 5
+        "Extremely Low Income": 1,
+        "Very Low Income": 3,
+        "Low Income": 1
       },
       "total_income_restricted_units": 5,
-      "total_units": 21,
-      "bbl": "3024190007",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024190007"
+      "total_units": 5,
+      "bbl": "3031730014",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3031730014"
+    },
+    {
+      "project_name": "B&R.YR15.FY25",
+      "address": "106 TROUTMAN STREET",
+      "zip": "11206",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Extremely Low Income": 1,
+        "Very Low Income": 3,
+        "Low Income": 1
+      },
+      "total_income_restricted_units": 5,
+      "total_units": 5,
+      "bbl": "3031840015",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3031840015"
     },
     {
       "project_name": "BUFF 236-1 DEVELOPMENT ASSOCIATES.HPO.FY23",
@@ -944,17 +1833,62 @@
       "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3023960025"
     },
     {
-      "project_name": "FSG DEVELOPMENT FCM - FSG REALTY LLC",
-      "address": "892 FLUSHING AVENUE",
+      "project_name": "B&R.YR15.FY25",
+      "address": "794 FLUSHING AVENUE",
       "zip": "11206",
       "neighborhood": "Brooklyn",
       "units_by_tier": {
-        "Low Income": 5
+        "Extremely Low Income": 2,
+        "Very Low Income": 2
       },
-      "total_income_restricted_units": 5,
-      "total_units": 27,
-      "bbl": "3031390012",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3031390012"
+      "total_income_restricted_units": 4,
+      "total_units": 4,
+      "bbl": "3031310019",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3031310019"
+    },
+    {
+      "project_name": "B&R.YR15.FY25",
+      "address": "19 LOCUST STREET",
+      "zip": "11206",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Extremely Low Income": 1,
+        "Very Low Income": 1,
+        "Low Income": 2
+      },
+      "total_income_restricted_units": 4,
+      "total_units": 4,
+      "bbl": "3031340040",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3031340040"
+    },
+    {
+      "project_name": "B&R.YR15.FY25",
+      "address": "22 LOCUST STREET",
+      "zip": "11206",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Very Low Income": 2,
+        "Low Income": 2
+      },
+      "total_income_restricted_units": 4,
+      "total_units": 4,
+      "bbl": "3031350015",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3031350015"
+    },
+    {
+      "project_name": "B&R.YR15.FY25",
+      "address": "100 TROUTMAN STREET",
+      "zip": "11206",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Extremely Low Income": 2,
+        "Very Low Income": 1,
+        "Low Income": 1
+      },
+      "total_income_restricted_units": 4,
+      "total_units": 4,
+      "bbl": "3031840012",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3031840012"
     },
     {
       "project_name": "BUFF 236-1 DEVELOPMENT ASSOCIATES.HPO.FY23",
@@ -971,259 +1905,19 @@
       "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3023960026"
     },
     {
-      "project_name": "KENT VILLAGE",
-      "address": "115 CLYMER STREET",
-      "zip": "11249",
-      "neighborhood": "Brooklyn",
-      "units_by_tier": {
-        "Low Income": 4
-      },
-      "total_income_restricted_units": 4,
-      "total_units": 39,
-      "bbl": "3021660001",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3021660001"
-    },
-    {
-      "project_name": "LA CABANA HOUSES",
-      "address": "391 LORIMER STREET",
+      "project_name": "BEC CONTINUUM HDFC.YR15.FY2017",
+      "address": "643 WILLOUGHBY AVENUE",
       "zip": "11206",
       "neighborhood": "Brooklyn",
       "units_by_tier": {
-        "Low Income": 4
+        "Extremely Low Income": 2,
+        "Very Low Income": 1,
+        "Low Income": 1
       },
       "total_income_restricted_units": 4,
-      "total_units": 71,
-      "bbl": "3030310018",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3030310018"
-    },
-    {
-      "project_name": "GROWER-GREEN",
-      "address": "350 KEAP STREET",
-      "zip": "11211",
-      "neighborhood": "Brooklyn",
-      "units_by_tier": {
-        "Low Income": 4
-      },
-      "total_income_restricted_units": 4,
-      "total_units": 29,
-      "bbl": "3024370003",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024370003"
-    },
-    {
-      "project_name": "GROWER-GREEN",
-      "address": "354 SOUTH 2 STREET",
-      "zip": "11211",
-      "neighborhood": "Brooklyn",
-      "units_by_tier": {
-        "Low Income": 3,
-        "Moderate Income": 1
-      },
-      "total_income_restricted_units": 4,
-      "total_units": 29,
-      "bbl": "3024240006",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024240006"
-    },
-    {
-      "project_name": "GROWER-GREEN",
-      "address": "359 SOUTH 2 STREET",
-      "zip": "11211",
-      "neighborhood": "Brooklyn",
-      "units_by_tier": {
-        "Low Income": 3,
-        "Moderate Income": 1
-      },
-      "total_income_restricted_units": 4,
-      "total_units": 24,
-      "bbl": "3024120030",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024120030"
-    },
-    {
-      "project_name": "GROWER-GREEN",
-      "address": "373 SOUTH 2 STREET",
-      "zip": "11211",
-      "neighborhood": "Brooklyn",
-      "units_by_tier": {
-        "Low Income": 2,
-        "Moderate Income": 2
-      },
-      "total_income_restricted_units": 4,
-      "total_units": 22,
-      "bbl": "3024120025",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024120025"
-    },
-    {
-      "project_name": "GROWER-GREEN",
-      "address": "247 SOUTH 3 STREET",
-      "zip": "11211",
-      "neighborhood": "Brooklyn",
-      "units_by_tier": {
-        "Low Income": 2,
-        "Moderate Income": 2
-      },
-      "total_income_restricted_units": 4,
-      "total_units": 29,
-      "bbl": "3024210035",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024210035"
-    },
-    {
-      "project_name": "Marine Terrace Apartments",
-      "address": "20-25 SHORE BOULEVARD",
-      "zip": "11105",
-      "neighborhood": "Astoria",
-      "units_by_tier": {
-        "Low Income": 4
-      },
-      "total_income_restricted_units": 4,
-      "total_units": 84,
-      "bbl": "4008940101",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/4008940101"
-    },
-    {
-      "project_name": "Monsignor Alexius Jarka Hall",
-      "address": "268 BEDFORD AVENUE",
-      "zip": "11249",
-      "neighborhood": "Brooklyn",
-      "units_by_tier": {
-        "Low Income": 4
-      },
-      "total_income_restricted_units": 4,
-      "total_units": 63,
-      "bbl": "3023650019",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3023650019"
-    },
-    {
-      "project_name": "LOS SURES SIP HDFC.GHPP.FY24",
-      "address": "249 SOUTH 1 STREET",
-      "zip": "11211",
-      "neighborhood": "Brooklyn",
-      "units_by_tier": {
-        "Low Income": 3
-      },
-      "total_income_restricted_units": 3,
-      "total_units": 17,
-      "bbl": "3023950025",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3023950025"
-    },
-    {
-      "project_name": "LOS SURES SIP HDFC.GHPP.FY24",
-      "address": "184 SOUTH 2 STREET",
-      "zip": "11211",
-      "neighborhood": "Brooklyn",
-      "units_by_tier": {
-        "Low Income": 3
-      },
-      "total_income_restricted_units": 3,
-      "total_units": 18,
-      "bbl": "3024190009",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024190009"
-    },
-    {
-      "project_name": "SUMET I.HUDMF.FY24",
-      "address": "226 SOUTH 1 STREET",
-      "zip": "11211",
-      "neighborhood": "Brooklyn",
-      "units_by_tier": {
-        "Low Income": 3
-      },
-      "total_income_restricted_units": 3,
-      "total_units": 21,
-      "bbl": "3024080007",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024080007"
-    },
-    {
-      "project_name": "RODNEY DRIGGS AND SOUTH THIRD STREET HDFC.YR15.FY19",
-      "address": "296 SOUTH 3 STREET",
-      "zip": "11211",
-      "neighborhood": "Brooklyn",
-      "units_by_tier": {
-        "Low Income": 3
-      },
-      "total_income_restricted_units": 3,
-      "total_units": 24,
-      "bbl": "3024360004",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024360004"
-    },
-    {
-      "project_name": "LA CABANA HOUSES",
-      "address": "417 LORIMER STREET",
-      "zip": "11206",
-      "neighborhood": "Brooklyn",
-      "units_by_tier": {
-        "Low Income": 3
-      },
-      "total_income_restricted_units": 3,
-      "total_units": 48,
-      "bbl": "3030220025",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3030220025"
-    },
-    {
-      "project_name": "LA CABANA HOUSES",
-      "address": "16 TEN EYCK STREET",
-      "zip": "11206",
-      "neighborhood": "Brooklyn",
-      "units_by_tier": {
-        "Low Income": 2,
-        "Moderate Income": 1
-      },
-      "total_income_restricted_units": 3,
-      "total_units": 48,
-      "bbl": "3030220016",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3030220016"
-    },
-    {
-      "project_name": "GROWER-GREEN",
-      "address": "366 SOUTH 2 STREET",
-      "zip": "11211",
-      "neighborhood": "Brooklyn",
-      "units_by_tier": {
-        "Low Income": 2,
-        "Moderate Income": 1
-      },
-      "total_income_restricted_units": 3,
-      "total_units": 24,
-      "bbl": "3024240014",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024240014"
-    },
-    {
-      "project_name": "GROWER-GREEN",
-      "address": "367 SOUTH 2 STREET",
-      "zip": "11211",
-      "neighborhood": "Brooklyn",
-      "units_by_tier": {
-        "Moderate Income": 3
-      },
-      "total_income_restricted_units": 3,
-      "total_units": 35,
-      "bbl": "3024120027",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024120027"
-    },
-    {
-      "project_name": "GROWER-GREEN",
-      "address": "370 SOUTH 2 STREET",
-      "zip": "11211",
-      "neighborhood": "Brooklyn",
-      "units_by_tier": {
-        "Low Income": 1,
-        "Moderate Income": 2
-      },
-      "total_income_restricted_units": 3,
-      "total_units": 24,
-      "bbl": "3024240016",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024240016"
-    },
-    {
-      "project_name": "GROWER-GREEN",
-      "address": "385 SOUTH 2 STREET",
-      "zip": "11211",
-      "neighborhood": "Brooklyn",
-      "units_by_tier": {
-        "Low Income": 2,
-        "Moderate Income": 1
-      },
-      "total_income_restricted_units": 3,
-      "total_units": 22,
-      "bbl": "3024130031",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024130031"
+      "total_units": 4,
+      "bbl": "3017600051",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3017600051"
     },
     {
       "project_name": "Kings Villas - St. Nicks",
@@ -1231,130 +1925,79 @@
       "zip": "11206",
       "neighborhood": "Brooklyn",
       "units_by_tier": {
+        "Very Low Income": 1,
         "Low Income": 3
       },
-      "total_income_restricted_units": 3,
+      "total_income_restricted_units": 4,
       "total_units": 4,
       "bbl": "3022760003",
       "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3022760003"
     },
     {
-      "project_name": "B&R.YR15.FY25",
-      "address": "19 LOCUST STREET",
-      "zip": "11206",
-      "neighborhood": "Brooklyn",
-      "units_by_tier": {
-        "Low Income": 2
-      },
-      "total_income_restricted_units": 2,
-      "total_units": 4,
-      "bbl": "3031340040",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3031340040"
-    },
-    {
-      "project_name": "B&R.YR15.FY25",
-      "address": "22 LOCUST STREET",
-      "zip": "11206",
-      "neighborhood": "Brooklyn",
-      "units_by_tier": {
-        "Low Income": 2
-      },
-      "total_income_restricted_units": 2,
-      "total_units": 4,
-      "bbl": "3031350015",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3031350015"
-    },
-    {
       "project_name": "TBK1001A - LOS SURES",
-      "address": "60 NORTH 8 STREET",
+      "address": "300 BEDFORD AVENUE",
       "zip": "11249",
       "neighborhood": "Brooklyn",
       "units_by_tier": {
-        "Moderate Income": 2
+        "Very Low Income": 3
       },
-      "total_income_restricted_units": 2,
-      "total_units": 6,
-      "bbl": "3023170010",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3023170010"
+      "total_income_restricted_units": 3,
+      "total_units": 3,
+      "bbl": "3023920030",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3023920030"
     },
     {
-      "project_name": "SUMET I.HUDMF.FY24",
-      "address": "198 SOUTH 1 STREET",
-      "zip": "11211",
+      "project_name": "BEC CONTINUUM HDFC.YR15.FY2017",
+      "address": "155 HART STREET",
+      "zip": "11206",
       "neighborhood": "Brooklyn",
       "units_by_tier": {
-        "Low Income": 2
+        "Very Low Income": 3
       },
-      "total_income_restricted_units": 2,
-      "total_units": 15,
-      "bbl": "3024070012",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024070012"
+      "total_income_restricted_units": 3,
+      "total_units": 3,
+      "bbl": "3017680073",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3017680073"
     },
     {
-      "project_name": "SUMET I.HUDMF.FY24",
-      "address": "204 SOUTH 1 STREET",
-      "zip": "11211",
+      "project_name": "BEC CONTINUUM HDFC.YR15.FY2017",
+      "address": "974 MYRTLE AVENUE",
+      "zip": "11206",
       "neighborhood": "Brooklyn",
       "units_by_tier": {
-        "Low Income": 1,
-        "Moderate Income": 1
+        "Extremely Low Income": 2,
+        "Very Low Income": 1
       },
-      "total_income_restricted_units": 2,
-      "total_units": 13,
-      "bbl": "3024070015",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024070015"
+      "total_income_restricted_units": 3,
+      "total_units": 3,
+      "bbl": "3017570018",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3017570018"
     },
     {
-      "project_name": "SUMET I.HUDMF.FY24",
-      "address": "237 SOUTH 2 STREET",
-      "zip": "11211",
+      "project_name": "BEC CONTINUUM HDFC.YR15.FY2017",
+      "address": "258 VERNON AVENUE",
+      "zip": "11206",
       "neighborhood": "Brooklyn",
       "units_by_tier": {
-        "Low Income": 2
+        "Very Low Income": 3
       },
-      "total_income_restricted_units": 2,
-      "total_units": 16,
-      "bbl": "3024080037",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024080037"
+      "total_income_restricted_units": 3,
+      "total_units": 3,
+      "bbl": "3017610030",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3017610030"
     },
     {
-      "project_name": "SUMET I.HUDMF.FY24",
-      "address": "209 SOUTH 3 STREET",
-      "zip": "11211",
+      "project_name": "BEC CONTINUUM HDFC.YR15.FY2017",
+      "address": "264 VERNON AVENUE",
+      "zip": "11206",
       "neighborhood": "Brooklyn",
       "units_by_tier": {
-        "Low Income": 2
+        "Very Low Income": 3
       },
-      "total_income_restricted_units": 2,
-      "total_units": 20,
-      "bbl": "3024200043",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024200043"
-    },
-    {
-      "project_name": "KENT VILLAGE",
-      "address": "64 DIVISION AVENUE",
-      "zip": "11249",
-      "neighborhood": "Brooklyn",
-      "units_by_tier": {
-        "Low Income": 2
-      },
-      "total_income_restricted_units": 2,
-      "total_units": 36,
-      "bbl": "3021660001",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3021660001"
-    },
-    {
-      "project_name": "GROWER-GREEN",
-      "address": "355 SOUTH 2 STREET",
-      "zip": "11211",
-      "neighborhood": "Brooklyn",
-      "units_by_tier": {
-        "Moderate Income": 2
-      },
-      "total_income_restricted_units": 2,
-      "total_units": 24,
-      "bbl": "3024120033",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024120033"
+      "total_income_restricted_units": 3,
+      "total_units": 3,
+      "bbl": "3017610034",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3017610034"
     },
     {
       "project_name": "BEC CONTINUUM HDFC.YR15.FY2017",
@@ -1362,142 +2005,54 @@
       "zip": "11206",
       "neighborhood": "Brooklyn",
       "units_by_tier": {
+        "Extremely Low Income": 1,
         "Low Income": 2
       },
-      "total_income_restricted_units": 2,
+      "total_income_restricted_units": 3,
       "total_units": 3,
       "bbl": "3017610056",
       "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3017610056"
     },
     {
-      "project_name": "Marine Terrace Apartments",
-      "address": "20-11 20 STREET",
-      "zip": "11105",
-      "neighborhood": "Astoria",
+      "project_name": "Kings Villas - St. Nicks",
+      "address": "663 WILLOUGHBY AVENUE",
+      "zip": "11206",
+      "neighborhood": "Brooklyn",
       "units_by_tier": {
-        "Low Income": 2
+        "Very Low Income": 2,
+        "Low Income": 1
+      },
+      "total_income_restricted_units": 3,
+      "total_units": 3,
+      "bbl": "3017610070",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3017610070"
+    },
+    {
+      "project_name": "TBK1001A - LOS SURES",
+      "address": "407 SOUTH 5 STREET",
+      "zip": "11211",
+      "neighborhood": "Brooklyn",
+      "units_by_tier": {
+        "Extremely Low Income": 1,
+        "Very Low Income": 1
       },
       "total_income_restricted_units": 2,
-      "total_units": 60,
-      "bbl": "4008930050",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/4008930050"
-    },
-    {
-      "project_name": "Marine Terrace Apartments",
-      "address": "20-12 20 STREET",
-      "zip": "11105",
-      "neighborhood": "Astoria",
-      "units_by_tier": {
-        "Low Income": 2
-      },
-      "total_income_restricted_units": 2,
-      "total_units": 60,
-      "bbl": "4008930030",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/4008930030"
-    },
-    {
-      "project_name": "B&R.YR15.FY25",
-      "address": "178 JEFFERSON STREET",
-      "zip": "11206",
-      "neighborhood": "Brooklyn",
-      "units_by_tier": {
-        "Low Income": 1
-      },
-      "total_income_restricted_units": 1,
-      "total_units": 5,
-      "bbl": "3031730014",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3031730014"
-    },
-    {
-      "project_name": "B&R.YR15.FY25",
-      "address": "100 TROUTMAN STREET",
-      "zip": "11206",
-      "neighborhood": "Brooklyn",
-      "units_by_tier": {
-        "Low Income": 1
-      },
-      "total_income_restricted_units": 1,
-      "total_units": 4,
-      "bbl": "3031840012",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3031840012"
-    },
-    {
-      "project_name": "B&R.YR15.FY25",
-      "address": "106 TROUTMAN STREET",
-      "zip": "11206",
-      "neighborhood": "Brooklyn",
-      "units_by_tier": {
-        "Low Income": 1
-      },
-      "total_income_restricted_units": 1,
-      "total_units": 5,
-      "bbl": "3031840015",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3031840015"
-    },
-    {
-      "project_name": "LOS SURES SIP HDFC.GHPP.FY24",
-      "address": "188 SOUTH 2 STREET",
-      "zip": "11211",
-      "neighborhood": "Brooklyn",
-      "units_by_tier": {
-        "Low Income": 1
-      },
-      "total_income_restricted_units": 1,
-      "total_units": 24,
-      "bbl": "3024190012",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024190012"
-    },
-    {
-      "project_name": "SUMET I.HUDMF.FY24",
-      "address": "215 ROEBLING STREET",
-      "zip": "11211",
-      "neighborhood": "Brooklyn",
-      "units_by_tier": {
-        "Moderate Income": 1
-      },
-      "total_income_restricted_units": 1,
-      "total_units": 17,
-      "bbl": "3024200005",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024200005"
-    },
-    {
-      "project_name": "SUMET I.HUDMF.FY24",
-      "address": "233 SOUTH 2 STREET",
-      "zip": "11211",
-      "neighborhood": "Brooklyn",
-      "units_by_tier": {
-        "Low Income": 1
-      },
-      "total_income_restricted_units": 1,
-      "total_units": 11,
-      "bbl": "3024080038",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024080038"
-    },
-    {
-      "project_name": "KENT VILLAGE",
-      "address": "111 CLYMER STREET",
-      "zip": "11249",
-      "neighborhood": "Brooklyn",
-      "units_by_tier": {
-        "Low Income": 1
-      },
-      "total_income_restricted_units": 1,
-      "total_units": 39,
-      "bbl": "3021660001",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3021660001"
+      "total_units": 2,
+      "bbl": "3024510019",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3024510019"
     },
     {
       "project_name": "BEC CONTINUUM HDFC.YR15.FY2017",
-      "address": "643 WILLOUGHBY AVENUE",
+      "address": "145 HART STREET",
       "zip": "11206",
       "neighborhood": "Brooklyn",
       "units_by_tier": {
-        "Low Income": 1
+        "Very Low Income": 2
       },
-      "total_income_restricted_units": 1,
-      "total_units": 4,
-      "bbl": "3017600051",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3017600051"
+      "total_income_restricted_units": 2,
+      "total_units": 2,
+      "bbl": "3017680078",
+      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3017680078"
     },
     {
       "project_name": "SOUTHEASTERN QUEENS VACANT HOMES-CLUSTER I",
@@ -1511,32 +2066,6 @@
       "total_units": 1,
       "bbl": "4105730043",
       "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/4105730043"
-    },
-    {
-      "project_name": "Marine Terrace Apartments",
-      "address": "20-31 19 STREET",
-      "zip": "11105",
-      "neighborhood": "Astoria",
-      "units_by_tier": {
-        "Low Income": 1
-      },
-      "total_income_restricted_units": 1,
-      "total_units": 60,
-      "bbl": "4008930020",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/4008930020"
-    },
-    {
-      "project_name": "Kings Villas - St. Nicks",
-      "address": "663 WILLOUGHBY AVENUE",
-      "zip": "11206",
-      "neighborhood": "Brooklyn",
-      "units_by_tier": {
-        "Low Income": 1
-      },
-      "total_income_restricted_units": 1,
-      "total_units": 3,
-      "bbl": "3017610070",
-      "portal_url": "https://propertyinformationportal.nyc.gov/parcels/parcel/3017610070"
     }
   ]
 }

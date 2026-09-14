@@ -40,12 +40,15 @@ ZIP_TO_NEIGHBORHOODS = {
 }
 
 # Official AMI brackets, per HPD's own field descriptions on the dataset.
-# Scoped to just Low and Moderate Income per the ask -- Extremely Low/Very
-# Low/Middle Income and "other_income_units" (superintendent-reserved
-# units) are excluded.
+# All five tiers are included; the page filters by tier client-side rather
+# than the data being pre-restricted. "other_income_units" (superintendent-
+# reserved units) is excluded -- it's not an income tier.
 TIERS = [
+    ("extremely_low_income_units", "Extremely Low Income", "0-30% AMI"),
+    ("very_low_income_units", "Very Low Income", "31-50% AMI"),
     ("low_income_units", "Low Income", "51-80% AMI"),
     ("moderate_income_units", "Moderate Income", "81-120% AMI"),
+    ("middle_income_units", "Middle Income", "121-165% AMI"),
 ]
 
 PIP_URL = "https://propertyinformationportal.nyc.gov/parcels/parcel/{bbl}"

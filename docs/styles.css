@@ -86,5 +86,3 @@
   @media (max-width:480px){ .complex-grid{grid-template-columns:1fr;} }
   .complex-card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;}
   .complex-addr{font-size:12.5px;color:var(--ink-soft);margin-top:8px;line-height:1.5;}
-  .tier-legend{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 16px;}
-  .tier-chip{font-size:12px;padding:5px 10px;border-radius:999px;background:var(--accent-tint);color:var(--accent);}

@@ -504,7 +504,7 @@ function renderSavings(){
 function fmtNum(n){ return n.toLocaleString('en-US'); }
 
 let affordData = { tiers: [], neighborhoods: [], buildings: [] };
-let affordFilterState = { neighborhood: 'All' };
+let affordFilterState = { neighborhood: 'All', tier: 'All' };
 
 function renderAffordDashboard(){
   const totalUnits = affordData.buildings.reduce((s,b)=>s+b.total_income_restricted_units, 0);
@@ -518,7 +518,7 @@ function renderAffordDashboard(){
   const dash = document.getElementById('affordDashSection');
   dash.innerHTML = `
     <div class="dash-grid">
-      <div class="stat-card"><div class="stat-value">${fmtNum(totalUnits)}</div><div class="stat-label">Income-restricted units (Low + Moderate)</div></div>
+      <div class="stat-card"><div class="stat-value">${fmtNum(totalUnits)}</div><div class="stat-label">Income-restricted units (all tiers)</div></div>
       <div class="stat-card"><div class="stat-value">${fmtNum(totalBuildings)}</div><div class="stat-label">Buildings with such units</div></div>
       ${affordData.tiers.map(t=>`
         <div class="stat-card"><div class="stat-value">${fmtNum(byTier[t.label]||0)}</div><div class="stat-label">${t.label} units (${t.ami_range})</div></div>
@@ -538,11 +538,15 @@ function renderAffordDashboard(){
 }
 
 function renderAffordBuildings(){
+  const tierOptions = ['All', ...affordData.tiers.map(t=>t.label)];
+  buildChips(document.getElementById('tierRow'), tierOptions, affordFilterState, 'tier', renderAffordBuildings);
+
   const neighborhoodOptions = ['All', ...new Set(affordData.buildings.map(b=>b.neighborhood))].sort((a,b)=> a==='All' ? -1 : b==='All' ? 1 : a.localeCompare(b));
   buildChips(document.getElementById('affordNeighborhoodRow'), neighborhoodOptions, affordFilterState, 'neighborhood', renderAffordBuildings);
 
   const filtered = affordData.buildings.filter(b=>{
     if(affordFilterState.neighborhood!=='All' && b.neighborhood!==affordFilterState.neighborhood) return false;
+    if(affordFilterState.tier!=='All' && !(b.units_by_tier[affordFilterState.tier] > 0)) return false;
     return true;
   });
 
@@ -553,7 +557,7 @@ function renderAffordBuildings(){
   if(filtered.length===0){
     grid.innerHTML = '';
     empty.style.display = 'block';
-    empty.textContent = 'No income-restricted (Low/Moderate) units found for that neighborhood in this data.';
+    empty.textContent = 'No income-restricted units found for that filter combination in this data.';
     return;
   }
   empty.style.display = 'none';
