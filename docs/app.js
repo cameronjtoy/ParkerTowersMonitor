@@ -506,6 +506,52 @@ function fmtNum(n){ return n.toLocaleString('en-US'); }
 let affordData = { tiers: [], neighborhoods: [], buildings: [] };
 let affordFilterState = { neighborhood: 'All', tier: 'All' };
 
+// Official 2026 HPD Area Median Income chart (nyc.gov/site/hpd/services-and-
+// information/area-median-income.page) -- the $ cutoff at each household
+// size for 30/50/80/120/165% AMI. 100% AMI base: $152,700 for a 3-person
+// household. Updated annually by HPD; household sizes above 5 are on the
+// same page if this ever needs extending.
+const AMI_CHART_2026 = [
+  { size: 1, ami30: 35640, ami50: 59400, ami80: 95040, ami120: 142560, ami165: 196020 },
+  { size: 2, ami30: 40710, ami50: 67850, ami80: 108560, ami120: 162840, ami165: 223905 },
+  { size: 3, ami30: 45810, ami50: 76350, ami80: 122160, ami120: 183240, ami165: 251955 },
+  { size: 4, ami30: 50880, ami50: 84800, ami80: 135680, ami120: 203520, ami165: 279840 },
+  { size: 5, ami30: 54960, ami50: 91600, ami80: 146560, ami120: 219840, ami165: 302280 },
+];
+
+function renderAmiChart(){
+  const section = document.getElementById('amiChartSection');
+  section.innerHTML = `
+    <p class="calc-note" style="margin-top:0;">Annual household income ranges by household size, per HPD's official 2026 AMI chart. A tier's units are reserved for households earning within that range.</p>
+    <div style="overflow-x:auto;">
+      <table class="neighborhood-table">
+        <thead>
+          <tr>
+            <th>Household size</th>
+            <th>Extremely Low<br>(0-30% AMI)</th>
+            <th>Very Low<br>(31-50% AMI)</th>
+            <th>Low<br>(51-80% AMI)</th>
+            <th>Moderate<br>(81-120% AMI)</th>
+            <th>Middle<br>(121-165% AMI)</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${AMI_CHART_2026.map(r => `
+            <tr>
+              <td>${r.size}</td>
+              <td>$0 – ${fmtNum(r.ami30)}</td>
+              <td>${fmtNum(r.ami30+1)} – ${fmtNum(r.ami50)}</td>
+              <td>${fmtNum(r.ami50+1)} – ${fmtNum(r.ami80)}</td>
+              <td>${fmtNum(r.ami80+1)} – ${fmtNum(r.ami120)}</td>
+              <td>${fmtNum(r.ami120+1)} – ${fmtNum(r.ami165)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
 function renderAffordDashboard(){
   const totalUnits = affordData.buildings.reduce((s,b)=>s+b.total_income_restricted_units, 0);
   const totalBuildings = affordData.buildings.length;
@@ -587,6 +633,7 @@ function renderAffordBuildings(){
 }
 
 function loadAffordableHousing(){
+  renderAmiChart();
   fetch('affordable_housing.json')
     .then(r=>r.json())
     .then(data=>{
