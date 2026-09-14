@@ -567,6 +567,10 @@ function renderAffordBuildings(){
     const addrHtml = b.portal_url
       ? `<a class="view-link" href="${b.portal_url}" target="_blank" rel="noopener">${b.address}</a>`
       : b.address;
+    // No website field in HPD's dataset -- best-effort fallback so you can
+    // still find a management/leasing page if one exists.
+    const searchQuery = encodeURIComponent(`${b.address} ${b.neighborhood} NYC apartments`);
+    const searchUrl = `https://www.google.com/search?q=${searchQuery}`;
     return `
       <div class="complex-card">
         <div class="card-top">
@@ -576,7 +580,7 @@ function renderAffordBuildings(){
           </div>
         </div>
         <div class="facts">${b.neighborhood}${b.total_units ? ' · ' + b.total_units + ' total units in building' : ''}</div>
-        <div class="complex-addr">${addrHtml}</div>
+        <div class="complex-addr">${addrHtml} · <a class="view-link" href="${searchUrl}" target="_blank" rel="noopener">search for a website</a></div>
       </div>
     `;
   }).join('');
