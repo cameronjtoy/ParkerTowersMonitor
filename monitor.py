@@ -3,6 +3,7 @@ import json
 import logging
 import os
 import random
+import re
 import smtplib
 import sys
 import time
@@ -28,6 +29,19 @@ LOG_PATH = BASE_DIR / "monitor.log"
 # itemsOnPage is set well above that so every property's full inventory
 # always comes back in one page.
 API_URL = "https://units.stuytown.com/api/units?page=0&itemsOnPage=500"
+
+# Both of these are single-building sites (not part of the Stuy Town feed)
+# that render their availability table server-side via WordPress's own REST
+# API -- fetching wp-json/wp/v2/pages/<id> returns the same rendered HTML as
+# the page itself, without needing a JS-executing browser, so a plain
+# urllib GET + regex is enough (the table markup isn't present in the raw
+# page HTML at all -- it's injected client-side -- but the REST endpoint
+# returns the server-rendered version of the same block).
+MIRAMAR_API_URL = "https://rentmiramar.com/wp-json/wp/v2/pages/31"
+MIRAMAR_ADDRESS = "407 West 206th Street, New York, NY 10034"
+DWTNBK_API_URL = "https://dwtnbk.com/wp-json/wp/v2/pages/268"
+DWTNBK_ADDRESS = "67 Prince Street, Brooklyn, NY 11201"
+
 USER_AGENT = (
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
     "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36"
@@ -86,6 +100,81 @@ def fetch_units():
         if resp.status != 200:
             raise RuntimeError(f"unexpected status {resp.status}")
         return json.load(resp)
+
+
+def fetch_wp_page_html(api_url):
+    req = urllib.request.Request(api_url, headers={"User-Agent": USER_AGENT, "Accept": "application/json"})
+    with urllib.request.urlopen(req, timeout=20) as resp:
+        if resp.status != 200:
+            raise RuntimeError(f"unexpected status {resp.status}")
+        data = json.load(resp)
+        return data["content"]["rendered"]
+
+
+def fetch_miramar_units():
+    html = fetch_wp_page_html(MIRAMAR_API_URL)
+    pattern = re.compile(
+        r'<div class="td residence">([^<]+)</div>\s*'
+        r'<div class="td rent">\$([\d,]+)</div>\s*'
+        r'<div class="td bedrooms">(\d+)</div>\s*'
+        r'<div class="td bathrooms">(\d+)</div>'
+    )
+    units = []
+    for unit_number, price, beds, baths in pattern.findall(html):
+        units.append({
+            "unitSpk": f"miramar-{unit_number}",
+            "property": {"name": "Miramar"},
+            "unitNumber": unit_number,
+            "price": int(price.replace(",", "")),
+            "bedrooms": int(beds),
+            "bathrooms": int(baths),
+            "sqft": None,
+            "building": {"address": MIRAMAR_ADDRESS},
+            "availableDate": None,
+        })
+    if not units:
+        raise RuntimeError("miramar: parsed 0 units, page structure likely changed")
+    return units
+
+
+def fetch_dwtnbk_units():
+    html = fetch_wp_page_html(DWTNBK_API_URL)
+    # This site's builder renders each unit as "Label: \n value" blocks
+    # rather than a class-per-cell table, so each unit is split out first
+    # and its fields pulled independently rather than one combined regex.
+    blocks = re.split(r"(?=Residence:\s*\n)", html)
+    units = []
+    for block in blocks[1:]:
+        m_num = re.search(r"Residence:\s*\n\s*(\S+)", block)
+        m_rent = re.search(r"Monthly Rent\*:\s*\n\s*\$([\d,]+)", block)
+        m_bed = re.search(r"Bedroom\(s\):\s*\n\s*(\d+)", block)
+        m_bath = re.search(r"Bathroom\(s\):\s*\n\s*(\d+)", block)
+        if not (m_num and m_rent and m_bed and m_bath):
+            continue
+        unit_number = m_num.group(1)
+        units.append({
+            "unitSpk": f"dwtnbk-{unit_number}",
+            "property": {"name": "DWTN Brooklyn"},
+            "unitNumber": unit_number,
+            "price": int(m_rent.group(1).replace(",", "")),
+            "bedrooms": int(m_bed.group(1)),
+            "bathrooms": int(m_bath.group(1)),
+            "sqft": None,
+            "building": {"address": DWTNBK_ADDRESS},
+            "availableDate": None,
+        })
+    if not units:
+        raise RuntimeError("dwtnbk: parsed 0 units, page structure likely changed")
+    return units
+
+
+# Prefixes used for unitSpk on units from the scraped single-building sites
+# (as opposed to numeric-only unitSpk values from the Stuy Town feed) -- used
+# to scope delisting checks per-source, see sync_to_supabase.
+SCRAPED_SOURCE_PREFIXES = {
+    "miramar": "miramar-",
+    "dwtnbk": "dwtnbk-",
+}
 
 
 def format_unit(u):
@@ -238,10 +327,13 @@ def notify_subscribers_per_threshold(config, units):
         logging.info("sent %d per-threshold subscriber notification(s)", sent)
 
 
-# The source feed normally returns ~230-240 units across the whole portfolio.
-# If a fetch comes back with suspiciously few, treat it as a likely
-# transient/partial upstream response rather than trusting it enough to count
-# misses against everything absent.
+# The Stuy Town feed alone normally returns ~230-240 units; combined with
+# Miramar/DWTN Brooklyn the merged list is normally ~250-280. If a run comes
+# back with suspiciously few (e.g. the main feed failed and only the small
+# scraped sites came through), treat it as a likely transient/partial
+# response rather than trusting it enough to count misses against everything
+# absent. Per-source scrape failures are additionally guarded against in
+# sync_to_supabase via failed_sources, regardless of this floor.
 MIN_EXPECTED_UNITS_FOR_DELISTING = 150
 
 # A unit has to be missing from this many *consecutive* fetches before it's
@@ -253,7 +345,7 @@ MIN_EXPECTED_UNITS_FOR_DELISTING = 150
 MISS_THRESHOLD = 2
 
 
-def sync_to_supabase(config, units):
+def sync_to_supabase(config, units, failed_sources=frozenset()):
     if not config.get("supabase_url") or not config.get("supabase_service_key"):
         return
 
@@ -271,6 +363,18 @@ def sync_to_supabase(config, units):
                 config, "GET", "/rest/v1/listings?select=id,missed_count&active=eq.true"
             ) or []
             missing_rows = [r for r in active_rows if r["id"] not in current_ids]
+
+            # A source that failed to fetch this run contributes zero rows,
+            # which would otherwise make every one of its previously-active
+            # units look "missing" and start counting toward delisting --
+            # exclude them so a scrape failure can't falsely delist a whole
+            # building. (The Stuy Town feed doesn't need this: its own units
+            # have no prefix, and MIN_EXPECTED_UNITS_FOR_DELISTING already
+            # skips this whole block if it fails to return its ~230+ units.)
+            for source in failed_sources:
+                prefix = SCRAPED_SOURCE_PREFIXES.get(source)
+                if prefix:
+                    missing_rows = [r for r in missing_rows if not r["id"].startswith(prefix)]
 
             for r in missing_rows:
                 new_missed = (r.get("missed_count") or 0) + 1
@@ -309,14 +413,33 @@ def main():
     config = load_config()
     threshold = config.get("price_threshold", 2200)
 
+    failed_sources = set()
+
     try:
         data = fetch_units()
+        units = data.get("unitModels", [])
     except Exception as e:
-        logging.error("fetch failed: %s", e)
+        logging.error("stuytown fetch failed: %s", e)
+        units = []
+        failed_sources.add("stuytown")
+
+    try:
+        units += fetch_miramar_units()
+    except Exception as e:
+        logging.error("miramar fetch failed: %s", e)
+        failed_sources.add("miramar")
+
+    try:
+        units += fetch_dwtnbk_units()
+    except Exception as e:
+        logging.error("dwtnbk fetch failed: %s", e)
+        failed_sources.add("dwtnbk")
+
+    if len(failed_sources) == 3:
+        logging.error("all sources failed, nothing to do this run")
         return
 
-    units = data.get("unitModels", [])
-    sync_to_supabase(config, units)
+    sync_to_supabase(config, units, failed_sources=failed_sources)
     notify_subscribers_per_threshold(config, units)
 
     qualifying = [
