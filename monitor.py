@@ -8,6 +8,7 @@ import smtplib
 import sys
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
 from email.mime.text import MIMEText
@@ -41,6 +42,16 @@ MIRAMAR_API_URL = "https://rentmiramar.com/wp-json/wp/v2/pages/31"
 MIRAMAR_ADDRESS = "407 West 206th Street, New York, NY 10034"
 DWTNBK_API_URL = "https://dwtnbk.com/wp-json/wp/v2/pages/268"
 DWTNBK_ADDRESS = "67 Prince Street, Brooklyn, NY 11201"
+
+# LeFrak City (Corona, Queens) is a huge multi-building complex with its own
+# unauthenticated AJAX endpoint that returns an HTML fragment per available
+# unit -- no JS execution needed, verified with a plain POST. Each unit
+# names its own sub-building (Brisbane, London, Singapore, etc, listed on
+# the site's own building filter), which becomes part of the property name
+# below so the site's existing per-property filter can distinguish them.
+LEFRAK_API_URL = "https://www.lefrakcity.com/ajax/getunitlist.asp"
+LEFRAK_PAGE_URL = "https://www.lefrakcity.com/apartments-for-rent-queens-nyc/"
+LEFRAK_CITY_STATE_ZIP = "Corona, NY 11373"
 
 USER_AGENT = (
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
@@ -168,12 +179,65 @@ def fetch_dwtnbk_units():
     return units
 
 
+def fetch_lefrak_units():
+    body = urllib.parse.urlencode({
+        "bedrooms": "", "priceMin": "0", "isDefaultMinPrice": "true",
+        "priceMax": "99999", "isDefaultMaxPrice": "true", "buildings": "",
+        "moveInDate": "", "availableNowOnly": "0", "page": "1", "lastNum": "",
+        "sort": "", "numberPerPage": "",
+    }).encode()
+    req = urllib.request.Request(
+        LEFRAK_API_URL, data=body, method="POST",
+        headers={
+            "User-Agent": USER_AGENT,
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-Requested-With": "XMLHttpRequest",
+            "Referer": LEFRAK_PAGE_URL,
+        },
+    )
+    with urllib.request.urlopen(req, timeout=20) as resp:
+        if resp.status != 200:
+            raise RuntimeError(f"lefrak: unexpected status {resp.status}")
+        html = resp.read().decode()
+
+    blocks = re.split(r'(?=<div class="unit-list-item )', html)
+    units = []
+    for block in blocks[1:]:
+        m_uid = re.search(r'data-uid="([^"]+)"', block)
+        m_price = re.search(r'data-total-price="([^"]+)"', block)
+        m_building = re.search(r'data-building-name="([^"]+)"', block)
+        m_addr = re.search(r"<nobr>([^<]+)</nobr>", block)
+        m_aria = re.search(r'aria-label="Residence ([^"]+) in ', block)
+        m_beds = re.search(r"(Studio|\d+ Bedrooms?)", block)
+        m_baths = re.search(r"(\d+) Bathrooms?", block)
+        if not (m_uid and m_price and m_building and m_addr and m_aria and m_beds and m_baths):
+            continue
+        beds = 0 if m_beds.group(1) == "Studio" else int(m_beds.group(1).split()[0])
+        units.append({
+            "unitSpk": f"lefrak-{m_uid.group(1)}",
+            "property": {"name": f"LeFrak City ({m_building.group(1)})"},
+            "unitNumber": m_aria.group(1),
+            "price": int(m_price.group(1).replace(",", "")),
+            "bedrooms": beds,
+            "bathrooms": int(m_baths.group(1)),
+            "sqft": None,
+            "building": {"address": f"{m_addr.group(1)}, {LEFRAK_CITY_STATE_ZIP}"},
+            "availableDate": None,
+        })
+    # Unlike Miramar/DWTN, an empty result here is plausible on any given
+    # day (current availability runs a handful of units across a huge
+    # complex, and a prior check confirmed page 2 legitimately returns
+    # nothing) -- so this doesn't raise on zero the way those two do.
+    return units
+
+
 # Prefixes used for unitSpk on units from the scraped single-building sites
 # (as opposed to numeric-only unitSpk values from the Stuy Town feed) -- used
 # to scope delisting checks per-source, see sync_to_supabase.
 SCRAPED_SOURCE_PREFIXES = {
     "miramar": "miramar-",
     "dwtnbk": "dwtnbk-",
+    "lefrak": "lefrak-",
 }
 
 
@@ -435,7 +499,13 @@ def main():
         logging.error("dwtnbk fetch failed: %s", e)
         failed_sources.add("dwtnbk")
 
-    if len(failed_sources) == 3:
+    try:
+        units += fetch_lefrak_units()
+    except Exception as e:
+        logging.error("lefrak fetch failed: %s", e)
+        failed_sources.add("lefrak")
+
+    if len(failed_sources) == 4:
         logging.error("all sources failed, nothing to do this run")
         return
 
