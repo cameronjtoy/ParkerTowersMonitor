@@ -288,6 +288,33 @@ document.getElementById('unsubscribeToggle').onclick = ()=>{
   row.style.display = row.style.display === 'none' ? 'flex' : 'none';
 };
 
+// Write-only from here -- the anon key can insert a suggestion but has no
+// select policy on building_suggestions, so submissions aren't readable
+// back through the site (see supabase/building_suggestions_schema.sql).
+async function submitSuggestion(){
+  const suggestion = document.getElementById('suggestionInput').value.trim();
+  const contact = document.getElementById('suggestionContactInput').value.trim();
+  const msgEl = document.getElementById('suggestMsg');
+  if(!suggestion){
+    msgEl.textContent = 'Enter a building name or address.';
+    msgEl.className = 'signup-msg err';
+    return;
+  }
+  const { error } = await supabaseClient
+    .from('building_suggestions')
+    .insert({ suggestion, contact: contact || null });
+  if(error){
+    msgEl.textContent = 'Could not submit: ' + error.message;
+    msgEl.className = 'signup-msg err';
+    return;
+  }
+  msgEl.textContent = 'Thanks — got it.';
+  msgEl.className = 'signup-msg ok';
+  document.getElementById('suggestionInput').value = '';
+  document.getElementById('suggestionContactInput').value = '';
+}
+document.getElementById('suggestBtn').onclick = submitSuggestion;
+
 /* ---------------- For Sale tab ---------------- */
 let saleListings = [];
 let mortgageCalcState = { downPct: 20, rate: 6.71, term: 30 };
