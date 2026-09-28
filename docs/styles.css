@@ -86,3 +86,6 @@
   @media (max-width:480px){ .complex-grid{grid-template-columns:1fr;} }
   .complex-card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;}
   .complex-addr{font-size:12.5px;color:var(--ink-soft);margin-top:8px;line-height:1.5;}
+
+  .sum-prop{margin:10px 0 4px;font-size:13.5px;}
+  .sum-unit{display:flex;justify-content:space-between;font-size:13px;color:var(--ink-soft);padding:3px 0;border-bottom:1px dotted var(--line);}

@@ -179,6 +179,7 @@ async function loadRentalListings(){
   }
   rentalListings = data;
   document.getElementById('rentalsLoading').style.display = 'none';
+  renderTodaySummary();
   renderRentals();
 }
 
@@ -189,6 +190,38 @@ function timeAgo(iso){
   const hours = Math.round(mins / 60);
   if(hours < 24) return hours + 'h ago';
   return Math.round(hours / 24) + 'd ago';
+}
+
+// Calendar day (America/New_York) as YYYY-MM-DD, so "today" matches the
+// 6-10am ET monitoring window regardless of the viewer's timezone.
+function etDay(d){
+  return new Date(d).toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+}
+
+function renderTodaySummary(){
+  const box = document.getElementById('todaySummary');
+  const today = etDay(Date.now());
+  const fresh = rentalListings.filter(l=> etDay(l.first_seen) === today);
+  box.style.display = 'block';
+  if(fresh.length===0){
+    box.innerHTML = `<p class="signup-title">New today</p><p class="signup-sub" style="margin:0;">No new listings so far today.</p>`;
+    return;
+  }
+  const prices = fresh.map(l=>l.price);
+  const byProp = {};
+  fresh.forEach(l=>{ (byProp[l.property] = byProp[l.property] || []).push(l); });
+  const bedLabel = b => b==null ? '?' : (b===0 ? 'Studio' : b + 'BD');
+  const rows = Object.keys(byProp).sort().map(prop=>{
+    const items = byProp[prop].slice().sort((a,b)=>a.price-b.price);
+    const lines = items.map(l=>
+      `<div class="sum-unit"><span>${bedLabel(l.beds)} · Unit ${l.unit_number || l.id}${l.sqft ? ' · ' + l.sqft + ' ft²' : ''}</span><span>${fmtPrice(l.price)}</span></div>`
+    ).join('');
+    return `<div class="sum-prop"><span class="property-tag">${prop}</span> <strong>${items.length}</strong> new</div>${lines}`;
+  }).join('');
+  box.innerHTML = `
+    <p class="signup-title">New today</p>
+    <p class="signup-sub">${fresh.length} new ${fresh.length===1 ? 'listing' : 'listings'} · ${fmtPrice(Math.min(...prices))}–${fmtPrice(Math.max(...prices))}</p>
+    ${rows}`;
 }
 
 function inPriceBand(price){
