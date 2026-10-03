@@ -89,3 +89,10 @@
 
   .sum-prop{margin:10px 0 4px;font-size:13.5px;}
   .sum-unit{display:flex;justify-content:space-between;font-size:13px;color:var(--ink-soft);padding:3px 0;border-bottom:1px dotted var(--line);}
+
+  .tab-metrics{ --accent:#4A6B3A; --accent-tint:#E6EDE1; }
+  .bar-row{display:flex;align-items:center;gap:8px;font-size:12.5px;padding:2px 0;}
+  .bar-label{flex:0 0 44px;color:var(--ink-soft);}
+  .bar-track{flex:1;height:10px;background:var(--accent-tint);border-radius:5px;overflow:hidden;}
+  .bar-fill{display:block;height:100%;background:var(--accent);}
+  .bar-val{flex:0 0 58px;text-align:right;color:var(--ink);}

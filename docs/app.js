@@ -22,6 +22,7 @@ const TAB_META = {
   'rentals': { title: 'Rental Monitor', sub: 'Live availability across the Stuyvesant Town / Parker Towers / Kips Bay Court / Peter Cooper Village portfolio.' },
   'for-sale': { title: 'For Sale', sub: 'Houses, condos, and co-ops in a handful of Queens/Astoria/Brooklyn neighborhoods.' },
   'savings': { title: 'Savings Calculator', sub: 'Project how a monthly contribution grows toward a goal.' },
+  'metrics': { title: 'Monitor Metrics', sub: 'How often new rentals appear, how long they last, and how prices break down — from the data the monitor has gathered.' },
   'analytics': { title: 'Building Analytics', sub: 'Preserved (non-lottery) income-restricted housing units across the same Queens/Brooklyn neighborhoods tracked on the For Sale tab.' },
 };
 
@@ -180,6 +181,7 @@ async function loadRentalListings(){
   rentalListings = data;
   document.getElementById('rentalsLoading').style.display = 'none';
   renderTodaySummary();
+  renderMetrics();
   renderRentals();
 }
 
@@ -705,6 +707,111 @@ function loadAffordableHousing(){
     .catch(err=>{
       document.getElementById('affordLoading').textContent = 'Could not load affordable housing data: ' + err.message;
     });
+}
+
+/* ---------------- Monitor Metrics tab ---------------- */
+function median(nums){
+  if(!nums.length) return null;
+  const a = nums.slice().sort((x,y)=>x-y), m = Math.floor(a.length/2);
+  return a.length % 2 ? a[m] : (a[m-1] + a[m]) / 2;
+}
+
+function fmtDays(d){
+  if(d==null) return '—';
+  return d < 1 ? Math.round(d*24) + 'h' : (Math.round(d*10)/10) + 'd';
+}
+
+// Horizontal bars; each row is [label, value, displayText].
+function barRows(rows){
+  const max = Math.max(1, ...rows.map(r=>r[1]));
+  return rows.map(r=>`
+    <div class="bar-row">
+      <span class="bar-label">${r[0]}</span>
+      <span class="bar-track"><span class="bar-fill" style="width:${(r[1]/max*100).toFixed(1)}%"></span></span>
+      <span class="bar-val">${r[2]}</span>
+    </div>`).join('');
+}
+
+function renderMetrics(){
+  const all = rentalListings;
+  const body = document.getElementById('metricsBody');
+  document.getElementById('metricsLoading').style.display = 'none';
+  if(!all.length){ body.innerHTML = '<div class="empty">No listings recorded yet.</div>'; return; }
+
+  const active = all.filter(l=>l.active);
+  const delisted = all.filter(l=>!l.active);
+  const DAY = 86400000;
+
+  // New listings per ET day, last 14 days (zero-filled).
+  const perDay = {};
+  all.forEach(l=>{ const d = etDay(l.first_seen); perDay[d] = (perDay[d]||0) + 1; });
+  const days = [];
+  for(let i=13;i>=0;i--) days.push(etDay(Date.now() - i*DAY));
+  const dayRows = days.map(d=>[d.slice(5), perDay[d]||0, perDay[d]||0]);
+  const last7 = days.slice(7).reduce((n,d)=> n + (perDay[d]||0), 0);
+  const prev7 = days.slice(0,7).reduce((n,d)=> n + (perDay[d]||0), 0);
+
+  // Frequency by weekday, averaged over the number of that weekday in the observed span.
+  const firstDay = new Date(Math.min(...all.map(l=>new Date(l.first_seen).getTime())));
+  const spanDays = Math.max(1, Math.ceil((Date.now() - firstDay.getTime())/DAY));
+  const wdNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const wdCount = [0,0,0,0,0,0,0], wdSeen = [0,0,0,0,0,0,0];
+  all.forEach(l=>{
+    const wd = new Date(etDay(l.first_seen) + 'T12:00:00').getDay();
+    wdCount[wd]++;
+  });
+  for(let i=0;i<spanDays;i++){ wdSeen[new Date(etDay(Date.now() - i*DAY) + 'T12:00:00').getDay()]++; }
+  const wdRows = wdNames.map((n,i)=>{
+    const avg = wdSeen[i] ? wdCount[i]/wdSeen[i] : 0;
+    return [n, avg, avg.toFixed(1) + '/day'];
+  });
+
+  // Time listed: first_seen -> last_seen.
+  const listedDays = l => (new Date(l.last_seen) - new Date(l.first_seen)) / DAY;
+  const medianListedDelisted = median(delisted.map(listedDays));
+  const medianAgeActive = median(active.map(l=> (Date.now() - new Date(l.first_seen)) / DAY));
+  const quick = delisted.filter(l=> listedDays(l) < 1).length;
+
+  // Price by bedroom count (active only).
+  const bedLabel = b => b==null ? 'Unknown' : (b===0 ? 'Studio' : (b>=3 ? '3+ BD' : b + ' BD'));
+  const byBed = {};
+  active.forEach(l=>{ (byBed[bedLabel(l.beds)] = byBed[bedLabel(l.beds)] || []).push(l); });
+  const bedOrder = ['Studio','1 BD','2 BD','3+ BD','Unknown'];
+  const bedTable = bedOrder.filter(k=>byBed[k]).map(k=>{
+    const ps = byBed[k].map(l=>l.price);
+    const sq = byBed[k].filter(l=>l.sqft).map(l=>l.price/l.sqft);
+    return `<tr><td>${k}</td><td>${ps.length}</td><td>${fmtPrice(Math.min(...ps))}</td><td>${fmtPrice(median(ps))}</td><td>${fmtPrice(Math.max(...ps))}</td><td>${sq.length ? '$' + median(sq).toFixed(2) : '—'}</td></tr>`;
+  }).join('');
+
+  // Per property.
+  const props = [...new Set(all.map(l=>l.property))].filter(Boolean).sort();
+  const propTable = props.map(p=>{
+    const a = active.filter(l=>l.property===p), d = delisted.filter(l=>l.property===p);
+    const total = all.filter(l=>l.property===p).length;
+    return `<tr><td>${p}</td><td>${total}</td><td>${a.length}</td><td>${a.length ? fmtPrice(median(a.map(l=>l.price))) : '—'}</td><td>${fmtDays(median(d.map(listedDays)))}</td></tr>`;
+  }).join('');
+
+  const trend = prev7===0 ? '' : ` (${last7>=prev7 ? '+' : ''}${Math.round((last7-prev7)/prev7*100)}% vs prior 7d)`;
+  body.innerHTML = `
+    <div class="dash-grid">
+      <div class="stat-card"><div class="stat-value">${all.length}</div><div class="stat-label">Listings tracked, all time</div></div>
+      <div class="stat-card"><div class="stat-value">${active.length}</div><div class="stat-label">Currently active</div></div>
+      <div class="stat-card"><div class="stat-value">${(all.length/spanDays).toFixed(1)}</div><div class="stat-label">New listings / day (avg over ${spanDays}d)</div></div>
+      <div class="stat-card"><div class="stat-value">${last7}</div><div class="stat-label">New in last 7 days${trend}</div></div>
+      <div class="stat-card"><div class="stat-value">${fmtDays(medianListedDelisted)}</div><div class="stat-label">Median time listed (delisted units)</div></div>
+      <div class="stat-card"><div class="stat-value">${delisted.length ? Math.round(quick/delisted.length*100) + '%' : '—'}</div><div class="stat-label">Delisted within 24h of first seen</div></div>
+    </div>
+
+    <div class="signup-panel"><p class="signup-title">New listings per day</p><p class="signup-sub">Last 14 days (ET)</p>${barRows(dayRows)}</div>
+    <div class="signup-panel"><p class="signup-title">Average new listings by weekday</p><p class="signup-sub">Averaged over every occurrence of that weekday since the first listing was recorded</p>${barRows(wdRows)}</div>
+
+    <p class="signup-title">Active asking rent by size</p>
+    <table class="neighborhood-table"><thead><tr><th>Size</th><th>Units</th><th>Min</th><th>Median</th><th>Max</th><th>$/ft² (med.)</th></tr></thead><tbody>${bedTable}</tbody></table>
+
+    <p class="signup-title">By property</p>
+    <table class="neighborhood-table"><thead><tr><th>Property</th><th>Total</th><th>Active</th><th>Median rent</th><th>Median listed</th></tr></thead><tbody>${propTable}</tbody></table>
+
+    <p class="signup-sub">Median age of currently active listings: ${fmtDays(medianAgeActive)}.</p>`;
 }
 
 /* ---------------- Init ---------------- */
