@@ -11,6 +11,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from email.mime.text import MIMEText
 from pathlib import Path
@@ -221,6 +222,20 @@ SCRAPED_SOURCE_PREFIXES = {
 }
 
 
+@contextmanager
+def timed(label):
+    """Log how long the wrapped block took as `timing <label>=<seconds>s`.
+
+    One greppable line per section (e.g. `grep "timing "` over a run's log) so
+    p50/p99 can be computed per section across runs.
+    """
+    t0 = time.perf_counter()
+    try:
+        yield
+    finally:
+        logging.info("timing %s=%.2fs", label, time.perf_counter() - t0)
+
+
 def open_smtp(config):
     server = smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=20)
     server.login(config["gmail_address"], config["gmail_app_password"])
@@ -290,10 +305,11 @@ def notify_subscribers_per_threshold(config, units):
         return
 
     try:
-        subscribers = supabase_request(
-            config, "GET",
-            "/rest/v1/subscribers?select=id,gateway_email,thresholds&active=eq.true",
-        ) or []
+        with timed("notify.load_subscribers"):
+            subscribers = supabase_request(
+                config, "GET",
+                "/rest/v1/subscribers?select=id,gateway_email,thresholds&active=eq.true",
+            ) or []
     except Exception as e:
         logging.error("fetching subscribers failed: %s", e)
         return
@@ -306,10 +322,11 @@ def notify_subscribers_per_threshold(config, units):
 
     subscriber_ids = ",".join(s["id"] for s in subscribers)
     try:
-        existing = supabase_request(
-            config, "GET",
-            f"/rest/v1/subscriber_notifications?select=subscriber_id,unit_id&subscriber_id=in.({subscriber_ids})",
-        ) or []
+        with timed("notify.load_already_sent"):
+            existing = supabase_request(
+                config, "GET",
+                f"/rest/v1/subscriber_notifications?select=subscriber_id,unit_id&subscriber_id=in.({subscriber_ids})",
+            ) or []
     except Exception as e:
         logging.error("fetching subscriber_notifications failed: %s", e)
         return
@@ -321,6 +338,8 @@ def notify_subscribers_per_threshold(config, units):
     # what already went out and the next run doesn't re-text it).
     server = None
     sent_pairs = []
+    send_times = []
+    loop_t0 = time.perf_counter()
     try:
         for u in units:
             price = u.get("price")
@@ -337,6 +356,7 @@ def notify_subscribers_per_threshold(config, units):
                 if (s["id"], unit_id) in already_notified:
                     continue
                 body = f"{property_name} unit {u.get('unitNumber')} ${price}/mo now available"
+                send_t0 = time.perf_counter()
                 try:
                     if server is None:
                         server = open_smtp(config)
@@ -350,9 +370,17 @@ def notify_subscribers_per_threshold(config, units):
                         "sms send failed for subscriber %s, unit %s: %s", s["id"], unit_id, e
                     )
                     continue
+                send_times.append(time.perf_counter() - send_t0)
                 already_notified.add((s["id"], unit_id))
                 sent_pairs.append({"subscriber_id": s["id"], "unit_id": unit_id})
     finally:
+        # Per-text latency includes the one-time SMTP connect+login on the first send.
+        logging.info(
+            "timing notify.match_and_send=%.2fs sends=%d send_avg=%.2fs send_max=%.2fs",
+            time.perf_counter() - loop_t0, len(send_times),
+            sum(send_times) / len(send_times) if send_times else 0.0,
+            max(send_times) if send_times else 0.0,
+        )
         if server is not None:
             try:
                 server.quit()
@@ -360,11 +388,12 @@ def notify_subscribers_per_threshold(config, units):
                 pass
         if sent_pairs:
             try:
-                supabase_request(
-                    config, "POST", "/rest/v1/subscriber_notifications?on_conflict=subscriber_id,unit_id",
-                    body=sent_pairs,
-                    extra_headers={"Prefer": "resolution=merge-duplicates,return=minimal"},
-                )
+                with timed("notify.record_sent"):
+                    supabase_request(
+                        config, "POST", "/rest/v1/subscriber_notifications?on_conflict=subscriber_id,unit_id",
+                        body=sent_pairs,
+                        extra_headers={"Prefer": "resolution=merge-duplicates,return=minimal"},
+                    )
             except Exception as e:
                 logging.error("recording %d subscriber_notifications failed: %s", len(sent_pairs), e)
             logging.info("sent %d per-threshold subscriber notification(s)", len(sent_pairs))
@@ -394,17 +423,19 @@ def sync_to_supabase(config, units, failed_sources=frozenset()):
 
     try:
         rows = [unit_to_row(u) for u in units]
-        supabase_request(
-            config, "POST", "/rest/v1/listings", body=rows,
-            extra_headers={"Prefer": "resolution=merge-duplicates,return=minimal"},
-        )
+        with timed("sync.upsert_listings"):
+            supabase_request(
+                config, "POST", "/rest/v1/listings", body=rows,
+                extra_headers={"Prefer": "resolution=merge-duplicates,return=minimal"},
+            )
 
         newly_delisted = 0
         if len(units) >= MIN_EXPECTED_UNITS_FOR_DELISTING:
             current_ids = {r["id"] for r in rows}
-            active_rows = supabase_request(
-                config, "GET", "/rest/v1/listings?select=id,missed_count&active=eq.true"
-            ) or []
+            with timed("sync.load_active"):
+                active_rows = supabase_request(
+                    config, "GET", "/rest/v1/listings?select=id,missed_count&active=eq.true"
+                ) or []
             missing_rows = [r for r in active_rows if r["id"] not in current_ids]
 
             # A source that failed to fetch this run contributes zero rows,
@@ -419,16 +450,17 @@ def sync_to_supabase(config, units, failed_sources=frozenset()):
                 if prefix:
                     missing_rows = [r for r in missing_rows if not r["id"].startswith(prefix)]
 
-            for r in missing_rows:
-                new_missed = (r.get("missed_count") or 0) + 1
-                body = {"missed_count": new_missed}
-                if new_missed >= MISS_THRESHOLD:
-                    body["active"] = False
-                    newly_delisted += 1
-                supabase_request(
-                    config, "PATCH", f"/rest/v1/listings?id=eq.{r['id']}",
-                    body=body, extra_headers={"Prefer": "return=minimal"},
-                )
+            with timed("sync.delisting_patches"):
+                for r in missing_rows:
+                    new_missed = (r.get("missed_count") or 0) + 1
+                    body = {"missed_count": new_missed}
+                    if new_missed >= MISS_THRESHOLD:
+                        body["active"] = False
+                        newly_delisted += 1
+                    supabase_request(
+                        config, "PATCH", f"/rest/v1/listings?id=eq.{r['id']}",
+                        body=body, extra_headers={"Prefer": "return=minimal"},
+                    )
         else:
             logging.warning(
                 "fetch returned only %d units (below sanity floor of %d) -- skipping delisting checks this run",
@@ -452,8 +484,10 @@ def main():
 
     # Small startup jitter so runs aren't all on the exact same second; kept
     # short because this delay sits directly in front of every notification.
+    run_t0 = time.perf_counter()
     jitter = random.uniform(0, float(os.environ.get("JITTER_MAX_SECONDS", "5")))
     time.sleep(jitter)
+    logging.info("timing jitter=%.2fs", jitter)
 
     config = load_config()
 
@@ -465,10 +499,14 @@ def main():
         ("dwtnbk", fetch_dwtnbk_units),
         ("lefrak", fetch_lefrak_units),
     ]
+    def timed_fetch(name, fn):
+        with timed(f"fetch.{name}"):
+            return fn()
+
     failed_sources = set()
     units = []
-    with ThreadPoolExecutor(max_workers=len(fetchers)) as pool:
-        futures = [(name, pool.submit(fn)) for name, fn in fetchers]
+    with timed("fetch.total"), ThreadPoolExecutor(max_workers=len(fetchers)) as pool:
+        futures = [(name, pool.submit(timed_fetch, name, fn)) for name, fn in fetchers]
         for name, fut in futures:
             try:
                 units += fut.result()
@@ -484,11 +522,14 @@ def main():
     # (including per-unit delisting PATCHes) can take a while. Neither step may
     # prevent the other from running.
     try:
-        notify_subscribers_per_threshold(config, units)
+        with timed("notify.total"):
+            notify_subscribers_per_threshold(config, units)
     except Exception as e:
         logging.error("notify failed: %s", e)
-    sync_to_supabase(config, units, failed_sources=failed_sources)
+    with timed("sync.total"):
+        sync_to_supabase(config, units, failed_sources=failed_sources)
 
+    logging.info("timing run_total=%.2fs", time.perf_counter() - run_t0)
     logging.info("run complete: %d total units", len(units))
 
 
