@@ -10,6 +10,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from email.mime.text import MIMEText
 from pathlib import Path
@@ -220,14 +221,28 @@ SCRAPED_SOURCE_PREFIXES = {
 }
 
 
-def send_sms(config, body, recipients):
+def open_smtp(config):
+    server = smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=20)
+    server.login(config["gmail_address"], config["gmail_app_password"])
+    return server
+
+
+def send_sms(config, body, recipients, server=None):
+    """Send a text via the carrier email gateway.
+
+    Pass an already-logged-in `server` to reuse one SMTP connection across many
+    messages (logging in per message was a notable share of notification
+    latency). Without one, a connection is opened and closed just for this send.
+    """
     msg = MIMEText(body)
     msg["Subject"] = ""
     msg["From"] = config["gmail_address"]
     msg["To"] = ", ".join(recipients)
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-        server.login(config["gmail_address"], config["gmail_app_password"])
+    if server is not None:
         server.sendmail(config["gmail_address"], recipients, msg.as_string())
+        return
+    with open_smtp(config) as one_off:
+        one_off.sendmail(config["gmail_address"], recipients, msg.as_string())
 
 
 def unit_to_row(u):
@@ -300,47 +315,59 @@ def notify_subscribers_per_threshold(config, units):
         return
     already_notified = {(r["subscriber_id"], r["unit_id"]) for r in existing}
 
-    sent = 0
-    for u in units:
-        price = u.get("price")
-        bed_key = threshold_bed_key(u.get("bedrooms"))
-        if price is None or bed_key is None:
-            continue
-        unit_id = u["unitSpk"]
-        property_name = (u.get("property") or {}).get("name", "Apartment")
+    # One SMTP connection for the whole run, opened lazily on the first send
+    # and reopened if Gmail drops it. Successful sends are recorded in a single
+    # batched write at the end (in `finally`, so a crash mid-loop still records
+    # what already went out and the next run doesn't re-text it).
+    server = None
+    sent_pairs = []
+    try:
+        for u in units:
+            price = u.get("price")
+            bed_key = threshold_bed_key(u.get("bedrooms"))
+            if price is None or bed_key is None:
+                continue
+            unit_id = u["unitSpk"]
+            property_name = (u.get("property") or {}).get("name", "Apartment")
 
-        for s in subscribers:
-            threshold = s["thresholds"].get(bed_key)
-            if threshold is None or price >= threshold:
-                continue
-            if (s["id"], unit_id) in already_notified:
-                continue
+            for s in subscribers:
+                threshold = s["thresholds"].get(bed_key)
+                if threshold is None or price >= threshold:
+                    continue
+                if (s["id"], unit_id) in already_notified:
+                    continue
+                body = f"{property_name} unit {u.get('unitNumber')} ${price}/mo now available"
+                try:
+                    if server is None:
+                        server = open_smtp(config)
+                    try:
+                        send_sms(config, body, recipients=[s["gateway_email"]], server=server)
+                    except smtplib.SMTPServerDisconnected:
+                        server = open_smtp(config)
+                        send_sms(config, body, recipients=[s["gateway_email"]], server=server)
+                except Exception as e:
+                    logging.error(
+                        "sms send failed for subscriber %s, unit %s: %s", s["id"], unit_id, e
+                    )
+                    continue
+                already_notified.add((s["id"], unit_id))
+                sent_pairs.append({"subscriber_id": s["id"], "unit_id": unit_id})
+    finally:
+        if server is not None:
             try:
-                send_sms(
-                    config,
-                    f"{property_name} unit {u.get('unitNumber')} ${price}/mo now available",
-                    recipients=[s["gateway_email"]],
-                )
-            except Exception as e:
-                logging.error(
-                    "sms send failed for subscriber %s, unit %s: %s", s["id"], unit_id, e
-                )
-                continue
+                server.quit()
+            except Exception:
+                pass
+        if sent_pairs:
             try:
                 supabase_request(
                     config, "POST", "/rest/v1/subscriber_notifications?on_conflict=subscriber_id,unit_id",
-                    body={"subscriber_id": s["id"], "unit_id": unit_id},
+                    body=sent_pairs,
                     extra_headers={"Prefer": "resolution=merge-duplicates,return=minimal"},
                 )
             except Exception as e:
-                logging.error(
-                    "recording subscriber_notification failed for %s/%s: %s", s["id"], unit_id, e
-                )
-                continue
-            sent += 1
-
-    if sent:
-        logging.info("sent %d per-threshold subscriber notification(s)", sent)
+                logging.error("recording %d subscriber_notifications failed: %s", len(sent_pairs), e)
+            logging.info("sent %d per-threshold subscriber notification(s)", len(sent_pairs))
 
 
 # The Stuy Town feed alone normally returns ~230-240 units; combined with
@@ -423,45 +450,44 @@ def main():
         logging.info("outside active window (%s local), skipping", now_local.strftime("%H:%M %Z"))
         return
 
-    jitter = random.uniform(0, 90)
+    # Small startup jitter so runs aren't all on the exact same second; kept
+    # short because this delay sits directly in front of every notification.
+    jitter = random.uniform(0, float(os.environ.get("JITTER_MAX_SECONDS", "5")))
     time.sleep(jitter)
 
     config = load_config()
 
+    # The four sources are independent, so fetch them concurrently. Results are
+    # merged in this fixed order to keep unit ordering identical to before.
+    fetchers = [
+        ("stuytown", lambda: fetch_units().get("unitModels", [])),
+        ("miramar", fetch_miramar_units),
+        ("dwtnbk", fetch_dwtnbk_units),
+        ("lefrak", fetch_lefrak_units),
+    ]
     failed_sources = set()
-
-    try:
-        data = fetch_units()
-        units = data.get("unitModels", [])
-    except Exception as e:
-        logging.error("stuytown fetch failed: %s", e)
-        units = []
-        failed_sources.add("stuytown")
-
-    try:
-        units += fetch_miramar_units()
-    except Exception as e:
-        logging.error("miramar fetch failed: %s", e)
-        failed_sources.add("miramar")
-
-    try:
-        units += fetch_dwtnbk_units()
-    except Exception as e:
-        logging.error("dwtnbk fetch failed: %s", e)
-        failed_sources.add("dwtnbk")
-
-    try:
-        units += fetch_lefrak_units()
-    except Exception as e:
-        logging.error("lefrak fetch failed: %s", e)
-        failed_sources.add("lefrak")
+    units = []
+    with ThreadPoolExecutor(max_workers=len(fetchers)) as pool:
+        futures = [(name, pool.submit(fn)) for name, fn in fetchers]
+        for name, fut in futures:
+            try:
+                units += fut.result()
+            except Exception as e:
+                logging.error("%s fetch failed: %s", name, e)
+                failed_sources.add(name)
 
     if len(failed_sources) == 4:
         logging.error("all sources failed, nothing to do this run")
         return
 
+    # Notify first: it only needs the fetched units, and the Supabase sync
+    # (including per-unit delisting PATCHes) can take a while. Neither step may
+    # prevent the other from running.
+    try:
+        notify_subscribers_per_threshold(config, units)
+    except Exception as e:
+        logging.error("notify failed: %s", e)
     sync_to_supabase(config, units, failed_sources=failed_sources)
-    notify_subscribers_per_threshold(config, units)
 
     logging.info("run complete: %d total units", len(units))
 
