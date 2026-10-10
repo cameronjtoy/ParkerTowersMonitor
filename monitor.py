@@ -293,26 +293,8 @@ def supabase_request(config, method, path, body=None, extra_headers=None):
         return json.loads(raw) if raw else None
 
 
-# Public availability page to link from a text, per source. The feeds expose no
-# per-unit URL, so every unit links to its source's listings page. Keyed by the
-# same unitSpk prefixes as SCRAPED_SOURCE_PREFIXES; Stuy Town units have no prefix.
-LISTING_PAGE_URLS = {
-    "miramar-": "https://rentmiramar.com",
-    "dwtnbk-": "https://dwtnbk.com",
-    "lefrak-": LEFRAK_PAGE_URL,
-}
-STUYTOWN_PAGE_URL = "https://www.parkertowers.com/nyc-apartments-for-rent"
-
-
-def listing_page_url(unit_id):
-    for prefix, url in LISTING_PAGE_URLS.items():
-        if str(unit_id).startswith(prefix):
-            return url
-    return STUYTOWN_PAGE_URL
-
-
 def format_sms(u):
-    """e.g. 'Parker Towers 12F: 2BD, 850sqft, $2450/mo https://units.stuytown.com'
+    """e.g. 'Parker Towers 12F: 2BD, 850sqft, $2450/mo'
 
     Bedroom count and size are omitted when the source doesn't provide them
     (e.g. sqft is None for the scraped single-building sites). Kept pure ASCII:
@@ -327,7 +309,7 @@ def format_sms(u):
     if u.get("sqft"):
         details.append(f"{u['sqft']}sqft")
     details.append(f"${u.get('price')}/mo")
-    return f"{property_name} {u.get('unitNumber')}: {', '.join(details)} {listing_page_url(u['unitSpk'])}"
+    return f"{property_name} {u.get('unitNumber')}: {', '.join(details)}"
 
 
 def threshold_bed_key(bedrooms):
