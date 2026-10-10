@@ -293,6 +293,43 @@ def supabase_request(config, method, path, body=None, extra_headers=None):
         return json.loads(raw) if raw else None
 
 
+# Public availability page to link from a text, per source. The feeds expose no
+# per-unit URL, so every unit links to its source's listings page. Keyed by the
+# same unitSpk prefixes as SCRAPED_SOURCE_PREFIXES; Stuy Town units have no prefix.
+LISTING_PAGE_URLS = {
+    "miramar-": "https://rentmiramar.com",
+    "dwtnbk-": "https://dwtnbk.com",
+    "lefrak-": LEFRAK_PAGE_URL,
+}
+STUYTOWN_PAGE_URL = "https://units.stuytown.com"
+
+
+def listing_page_url(unit_id):
+    for prefix, url in LISTING_PAGE_URLS.items():
+        if str(unit_id).startswith(prefix):
+            return url
+    return STUYTOWN_PAGE_URL
+
+
+def format_sms(u):
+    """e.g. 'Parker Towers 12F: 2BD, 850sqft, $2450/mo https://units.stuytown.com'
+
+    Bedroom count and size are omitted when the source doesn't provide them
+    (e.g. sqft is None for the scraped single-building sites). Kept pure ASCII:
+    a non-ASCII character would make MIMEText send UTF-8/base64, which SMS
+    gateways handle poorly and which shrinks the per-text length limit.
+    """
+    property_name = (u.get("property") or {}).get("name", "Apartment")
+    beds = u.get("bedrooms")
+    details = []
+    if beds is not None:
+        details.append("Studio" if int(beds) == 0 else f"{int(beds)}BD")
+    if u.get("sqft"):
+        details.append(f"{u['sqft']}sqft")
+    details.append(f"${u.get('price')}/mo")
+    return f"{property_name} {u.get('unitNumber')}: {', '.join(details)} {listing_page_url(u['unitSpk'])}"
+
+
 def threshold_bed_key(bedrooms):
     # "0" = studio, "3" covers 3+ bedrooms (matches the docs/index.html signup form).
     if bedrooms is None:
@@ -347,7 +384,6 @@ def notify_subscribers_per_threshold(config, units):
             if price is None or bed_key is None:
                 continue
             unit_id = u["unitSpk"]
-            property_name = (u.get("property") or {}).get("name", "Apartment")
 
             for s in subscribers:
                 threshold = s["thresholds"].get(bed_key)
@@ -355,7 +391,7 @@ def notify_subscribers_per_threshold(config, units):
                     continue
                 if (s["id"], unit_id) in already_notified:
                     continue
-                body = f"{property_name} unit {u.get('unitNumber')} ${price}/mo now available"
+                body = format_sms(u)
                 send_t0 = time.perf_counter()
                 try:
                     if server is None:
