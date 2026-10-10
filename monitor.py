@@ -301,7 +301,7 @@ LISTING_PAGE_URLS = {
     "dwtnbk-": "https://dwtnbk.com",
     "lefrak-": LEFRAK_PAGE_URL,
 }
-STUYTOWN_PAGE_URL = "https://units.stuytown.com"
+STUYTOWN_PAGE_URL = "https://www.parkertowers.com/nyc-apartments-for-rent"
 
 
 def listing_page_url(unit_id):
