@@ -58,7 +58,7 @@ python3 monitor.py
 
 Reads `config.json` (copy from `config.example.json`) instead of env vars
 when `GMAIL_ADDRESS` isn't set in the environment. Set `FORCE_RUN=true` to
-bypass the 6–10am gate.
+bypass the 6–10am gate. `JITTER_MAX_SECONDS` (default `5`) sets the maximum random startup delay.
 
 ## Run guide: `fetch_price_history.py` (house/co-op/condo sale history)
 
