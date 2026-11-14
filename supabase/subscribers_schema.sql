@@ -13,24 +13,15 @@ create unique index if not exists subscribers_gateway_email_key on subscribers (
 
 alter table subscribers enable row level security;
 
--- No select policy is created, so phone numbers aren't publicly readable --
--- only monitor.py (service_role key, bypasses RLS) can list them.
+-- Deliberately NO policies for anon/authenticated: the table is not directly
+-- readable or writable with the public anon key. The site reaches it only
+-- through the password-checked functions in subscribers_lockdown.sql (run that
+-- file after this one and app_settings_schema.sql). monitor.py uses the
+-- service_role key, which bypasses RLS.
 --
--- Insert/update/delete are open (no confirmation step -- acceptable for a
--- small personal-use tool): anyone can add themselves, update their own row
--- on re-subscribe (upsert by gateway_email), or remove a number they know.
---
--- NOTE: the `to anon, authenticated` clause is required here -- a policy
--- relying on the implicit PUBLIC role scope (no `to` clause) was observed to
--- NOT apply correctly via PostgREST on this project, even though the same
--- policy worked fine when tested with a direct `SET ROLE anon` SQL session.
--- Root cause not fully identified; explicit role targeting is the verified
--- working pattern -- keep it explicit for any future policy on this project.
-create policy "subscribers_all_access"
-  on subscribers for all
-  to anon, authenticated
-  using (true)
-  with check (true);
+-- (An earlier version created a `for all ... using (true)` policy here. FOR ALL
+-- includes SELECT, so it exposed every phone number; subscribers_lockdown.sql
+-- drops it on existing projects.)
 
 -- Per-bedroom-count price ceilings, e.g. {"0": 1700, "1": 2000, "2": 2400}.
 -- Key is bedroom count as text ("0" = studio); "3" is used for 3+ bedrooms.

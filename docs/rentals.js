@@ -5,6 +5,8 @@ let rentalListings = [];
 const rentalPriceOptions = ['All', `Under $${PRICE_THRESHOLD}`, 'Under $5000', '$5000+'];
 let rentalState = { property:'All', priceBand:'All', showDelisted:false };
 
+// Carrier names for the dropdown. The gateway domain is derived server-side by
+// carrier_gateway_domain() in supabase/subscribers_lockdown.sql -- keep both in sync.
 const CARRIER_GATEWAYS = {
   'AT&T': 'txt.att.net',
   'Verizon': 'vtext.com',
@@ -18,6 +20,38 @@ const CARRIER_GATEWAYS = {
   'Visible': 'vtext.com',
   'Xfinity Mobile': 'vtext.com',
 };
+
+// The signup password is checked server-side on every subscriber call (see
+// supabase/subscribers_lockdown.sql), so it's kept for this tab's session
+// once it has unlocked the form. The table itself is not readable or writable
+// with the anon key.
+let signupPassword = null;
+try{ signupPassword = sessionStorage.getItem('signupPassword'); }catch(e){}
+
+function lockSignup(message){
+  signupPassword = null;
+  try{ sessionStorage.removeItem('signupPassword'); }catch(e){}
+  document.getElementById('signupUnlocked').style.display = 'none';
+  document.getElementById('signupLocked').style.display = 'block';
+  const msg = document.getElementById('signupLockMsg');
+  msg.textContent = message || '';
+  msg.className = 'signup-msg err';
+}
+
+// Calls one of the subscriber RPCs. Returns the JSON result, or null after
+// showing the error (and re-locking the form if the password stopped working).
+async function subscriberRpc(fn, args){
+  const { data, error } = await supabaseClient.rpc(fn, Object.assign({ p_password: signupPassword }, args));
+  if(error){
+    showSignupMsg('Could not save: ' + error.message, false);
+    return null;
+  }
+  if(data && data.status === 'invalid_password'){
+    lockSignup('The password has changed — enter it again.');
+    return null;
+  }
+  return data;
+}
 
 function populateCarrierOptions(){
   const select = document.getElementById('carrierInput');
@@ -51,12 +85,8 @@ const THRESHOLD_FIELDS = { '0': 'thresholdStudio', '1': 'threshold1bd', '2': 'th
 async function loadExistingSettings(){
   const phone = normalizePhone(document.getElementById('phoneInput').value);
   if(phone.length !== 10) return;
-  const { data, error } = await supabaseClient
-    .from('subscribers')
-    .select('carrier,thresholds')
-    .eq('phone_number', phone)
-    .maybeSingle();
-  if(error || !data) return;
+  const data = await subscriberRpc('get_subscriber_settings', { p_phone: phone });
+  if(!data || !data.found) return;
   if(data.carrier) document.getElementById('carrierInput').value = data.carrier;
   Object.entries(THRESHOLD_FIELDS).forEach(([bedKey, inputId])=>{
     const val = (data.thresholds || {})[bedKey];
@@ -93,14 +123,9 @@ async function subscribe(){
     showSignupMsg('Set a max price for at least one bedroom count.', false);
     return;
   }
-  const gatewayEmail = phone + '@' + CARRIER_GATEWAYS[carrier];
-  const { error } = await supabaseClient
-    .from('subscribers')
-    .upsert({ phone_number: phone, carrier, gateway_email: gatewayEmail, active: true, thresholds }, { onConflict: 'gateway_email' });
-  if(error){
-    showSignupMsg('Could not add number: ' + error.message, false);
-    return;
-  }
+  // The gateway address is derived server-side from the carrier name.
+  const data = await subscriberRpc('subscribe_number', { p_phone: phone, p_carrier: carrier, p_thresholds: thresholds });
+  if(!data) return;
   showSignupMsg("You're subscribed — texts start on the next check.", true);
   document.getElementById('phoneInput').value = '';
   document.getElementById('carrierInput').value = '';
@@ -113,14 +138,8 @@ async function unsubscribe(){
     showSignupMsg('Enter a valid 10-digit US phone number to remove.', false);
     return;
   }
-  const { error } = await supabaseClient
-    .from('subscribers')
-    .delete()
-    .eq('phone_number', phone);
-  if(error){
-    showSignupMsg('Could not remove number: ' + error.message, false);
-    return;
-  }
+  const data = await subscriberRpc('unsubscribe_number', { p_phone: phone });
+  if(!data) return;
   showSignupMsg('Removed, if it was subscribed.', true);
   document.getElementById('unsubPhoneInput').value = '';
 }
@@ -233,13 +252,16 @@ async function tryUnlockSignup(){
   btn.disabled = true;
   const { data, error } = await supabaseClient.rpc('check_signup_password', { input: entered });
   btn.disabled = false;
+  const msg = document.getElementById('signupLockMsg');
   if(!error && data === true){
+    signupPassword = entered;
+    try{ sessionStorage.setItem('signupPassword', entered); }catch(e){}
+    document.getElementById('signupPasswordInput').value = '';
+    msg.textContent = '';
     document.getElementById('signupLocked').style.display = 'none';
     document.getElementById('signupUnlocked').style.display = 'block';
-    try{ sessionStorage.setItem('signupUnlocked', '1'); }catch(e){}
   } else {
-    const msg = document.getElementById('signupLockMsg');
-    msg.textContent = 'Wrong password.';
+    msg.textContent = error ? 'Could not check password: ' + error.message : 'Wrong password.';
     msg.className = 'signup-msg err';
   }
 }
@@ -247,12 +269,11 @@ document.getElementById('signupUnlockBtn').onclick = tryUnlockSignup;
 document.getElementById('signupPasswordInput').addEventListener('keydown', e=>{
   if(e.key === 'Enter') tryUnlockSignup();
 });
-try{
-  if(sessionStorage.getItem('signupUnlocked') === '1'){
-    document.getElementById('signupLocked').style.display = 'none';
-    document.getElementById('signupUnlocked').style.display = 'block';
-  }
-}catch(e){}
+if(signupPassword){
+  document.getElementById('signupLocked').style.display = 'none';
+  document.getElementById('signupUnlocked').style.display = 'block';
+}
+try{ sessionStorage.removeItem('signupUnlocked'); }catch(e){}  // pre-lockdown flag, no longer used
 
 document.getElementById('delistedToggle').onclick = ()=>{ rentalState.showDelisted = !rentalState.showDelisted; renderRentals(); };
 document.getElementById('subscribeBtn').onclick = subscribe;

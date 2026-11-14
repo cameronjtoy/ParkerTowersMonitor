@@ -1,5 +1,5 @@
-// Shared helpers for every page. config.js (untracked, see config.example.js)
-// must be loaded first and define:
+// Shared helpers for every page. config.js (committed -- it only holds the
+// public anon key; see config.example.js) must be loaded first and define:
 //   const SUPABASE_URL = "https://xxxx.supabase.co";
 //   const SUPABASE_ANON_KEY = "eyJ...";   <- the ANON key only, never service_role
 //   const PRICE_THRESHOLD = 2200;
