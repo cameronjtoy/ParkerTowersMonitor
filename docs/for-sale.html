@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'">
+<title>For Sale — NYC Housing</title>
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.js" integrity="sha384-uteMfOloLDGt042uDz+xHGF3ym63/WQ6rFq7murQRG8Ih7QrXGEGNtWd8688sb4O" crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>For Sale</h1>
+    <p class="sub">Houses, condos, and co-ops in a handful of Queens/Astoria/Brooklyn neighborhoods.</p>
+  </header>
+
+  <nav class="tab-bar" aria-label="Sections">
+    <a class="tab-btn" href="index.html">Rentals</a>
+    <a class="tab-btn active" href="for-sale.html" aria-current="page">For Sale</a>
+    <a class="tab-btn" href="savings.html">Savings</a>
+    <a class="tab-btn" href="analytics.html">Analytics</a>
+    <a class="tab-btn" href="metrics.html">Metrics</a>
+  </nav>
+
+  <section class="tab-panel tab-forsale">
+    <div class="calc-panel">
+      <p class="calc-title">Mortgage assumptions</p>
+      <div class="calc-grid">
+        <div class="calc-field"><label>Down payment (%)</label><input type="number" id="downPct" value="20" min="0" max="100" step="1"></div>
+        <div class="calc-field"><label>Interest rate (%)</label><input type="number" id="rate" value="6.71" min="0" max="15" step="0.01"></div>
+        <div class="calc-field full">
+          <label>Loan term</label>
+          <div class="term-toggle">
+            <div class="term-btn active" data-term="30" data-rate="6.71">30-year</div>
+            <div class="term-btn" data-term="15" data-rate="6.04">15-year</div>
+          </div>
+        </div>
+      </div>
+      <p class="calc-note">Rate defaults are the Freddie Mac PMMS national weekly average as of 09/03/2026 — edit to match your actual quote. P&amp;I only — no tax, insurance, or co-op maintenance / condo common charges. Co-op boards often require higher down payments than a bank would.</p>
+    </div>
+
+    <div class="filter-row" id="typeRow"></div>
+    <div class="filter-row" id="cityRow"></div>
+
+    <div id="salePriceChart" class="chart-slot" hidden></div>
+    <div id="saleCityChart" class="chart-slot" hidden></div>
+    <div id="saleTypeChart" class="chart-slot" hidden></div>
+
+    <div class="meta-line" id="saleCountLine"></div>
+
+    <div id="saleLoading" class="loading">Loading listings…</div>
+    <div id="saleCardList"></div>
+    <div class="empty" id="saleEmpty" style="display:none;"></div>
+
+    <footer>
+      Refreshed on demand (no fixed schedule). Sourced from Redfin — not affiliated.
+    </footer>
+  </section>
+</div>
+
+<script src="config.js"></script>
+<script src="common.js"></script>
+<script src="charts.js"></script>
+<script src="for-sale.js"></script>
+</body>
+</html>
