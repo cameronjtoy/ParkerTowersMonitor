@@ -12,6 +12,7 @@ doesn't depend on a third-party API at load time.
 Usage: python3 analyze_affordable_housing.py
 """
 import json
+import re
 import urllib.request
 import urllib.parse
 from collections import defaultdict
@@ -53,6 +54,21 @@ TIERS = [
 
 PIP_URL = "https://propertyinformationportal.nyc.gov/parcels/parcel/{bbl}"
 
+
+
+# Queens house numbers are hyphenated ("4-21"), and at least one row in the
+# HPD dataset arrives with that value already mangled into a date by an
+# upstream spreadsheet step: "4-21" -> "2026-04-21T00:00:00.000". Undo that
+# so the address reads "4-21 27 AVENUE" instead of a timestamp.
+_DATE_HOUSE_NUMBER = re.compile(r"^\d{4}-(\d{2})-(\d{2})T00:00:00(?:\.0+)?$")
+
+
+def clean_house_number(raw):
+    raw = (raw or "").strip()
+    m = _DATE_HOUSE_NUMBER.match(raw)
+    if m:
+        return f"{int(m.group(1))}-{m.group(2)}"
+    return raw
 
 def neighborhood_label(zip_code):
     labels = ZIP_TO_NEIGHBORHOODS.get(zip_code)
@@ -102,7 +118,7 @@ def main():
         bbl = row.get("bbl")
         buildings.append({
             "project_name": row.get("project_name"),
-            "address": f"{row.get('house_number','').strip()} {row.get('street_name','').strip()}".strip(),
+            "address": f"{clean_house_number(row.get('house_number'))} {row.get('street_name','').strip()}".strip(),
             "zip": zip_code,
             "neighborhood": neighborhood_label(zip_code),
             "units_by_tier": units_by_tier,

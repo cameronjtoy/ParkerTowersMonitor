@@ -11,6 +11,9 @@
   .tab-bar{display:flex;gap:4px;margin:18px 0 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--paper);z-index:10;padding-top:4px;}
   .tab-btn{flex:1;padding:10px 6px;text-align:center;font-size:13.5px;color:var(--ink-soft);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;font-family:inherit;}
   .tab-btn.active{color:var(--ink);border-bottom-color:var(--ink);font-weight:600;}
+  a.tab-btn{text-decoration:none;display:block;}
+  a.tab-btn:hover{color:var(--ink);}
+  a.tab-btn:focus-visible{outline:2px solid var(--ink);outline-offset:-2px;}
 
   .tab-panel[hidden]{display:none;}
   /* Scoped accent per tab, so shared classes below (.price, .type-tag, etc)
@@ -76,7 +79,7 @@
   .tab-analytics{ --accent:#3B5B7C; --accent-tint:#E3E9EE; }
   .dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
   .stat-card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;}
-  .stat-value{font-family:Georgia,serif;font-size:22px;color:var(--accent);}
+  .stat-value{font-size:22px;font-weight:600;color:var(--ink);}
   .stat-label{font-size:11.5px;color:var(--ink-soft);margin-top:2px;}
   .neighborhood-table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:18px;}
   .neighborhood-table th{text-align:left;color:var(--ink-soft);font-weight:500;font-size:11px;padding:5px 6px;border-bottom:1px solid var(--line);}
@@ -91,8 +94,32 @@
   .sum-unit{display:flex;justify-content:space-between;font-size:13px;color:var(--ink-soft);padding:3px 0;border-bottom:1px dotted var(--line);}
 
   .tab-metrics{ --accent:#4A6B3A; --accent-tint:#E6EDE1; }
-  .bar-row{display:flex;align-items:center;gap:8px;font-size:12.5px;padding:2px 0;}
-  .bar-label{flex:0 0 44px;color:var(--ink-soft);}
-  .bar-track{flex:1;height:10px;background:var(--accent-tint);border-radius:5px;overflow:hidden;}
-  .bar-fill{display:block;height:100%;background:var(--accent);}
-  .bar-val{flex:0 0 58px;text-align:right;color:var(--ink);}
+
+  /* Charts (see charts.js). Chart text stays in the sans face and ink tokens;
+     only marks carry series color. */
+  .chart-card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px 12px;margin-bottom:16px;}
+  .chart-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;}
+  .chart-title{font-size:15px;font-weight:600;margin:0;}
+  .chart-sub{font-size:12.5px;color:var(--ink-soft);margin:2px 0 0;}
+  .chart-toggle{flex:0 0 auto;background:none;border:1px solid var(--line);border-radius:6px;padding:3px 9px;font-size:12px;color:var(--ink-soft);cursor:pointer;font-family:inherit;}
+  .chart-toggle:hover{color:var(--ink);border-color:var(--ink-soft);}
+  .chart-legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin:10px 0 0;font-size:12px;color:var(--ink-soft);}
+  .chart-legend-item{display:inline-flex;align-items:center;gap:6px;}
+  .chart-swatch{width:10px;height:10px;border-radius:2px;display:inline-block;}
+  .chart-swatch.is-line{width:14px;height:2px;border-radius:1px;}
+  .chart-plot{margin-top:12px;min-height:40px;}
+  .chart-plot svg{display:block;overflow:visible;font-family:inherit;}
+  .chart-table{margin-top:12px;overflow-x:auto;}
+  .chart-table .neighborhood-table{margin-bottom:0;}
+  .tnum{font-variant-numeric:tabular-nums;}
+  .chart-mark{transition:opacity .12s;}
+  .chart-mark.is-active, .chart-stack.is-active path{opacity:.75;}
+  .chart-hit{cursor:default;outline:none;}
+  .chart-hit:focus-visible{stroke:var(--ink);stroke-width:1;}
+  .chart-tip{position:fixed;z-index:50;display:none;pointer-events:none;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 10px;box-shadow:0 4px 14px rgba(28,27,25,.12);font-size:12.5px;max-width:260px;}
+  .chart-tip-title{color:var(--ink-soft);font-size:11.5px;margin-bottom:4px;}
+  .chart-tip-row{display:flex;align-items:center;gap:7px;line-height:1.6;}
+  .chart-tip-row strong{color:var(--ink);font-variant-numeric:tabular-nums;}
+  .chart-tip-key{width:12px;height:2px;border-radius:1px;flex:0 0 auto;}
+  .chart-tip-label{color:var(--ink-soft);}
+  .chart-slot[hidden], .chart-card[hidden], #savingsChart[hidden]{display:none;}

@@ -27,7 +27,14 @@ actually keeps this on schedule.
 
 ### 1. Supabase project
 1. Create a free project (or use an existing one).
-2. Open **SQL Editor** and run `supabase/schema.sql`.
+2. Open **SQL Editor** and run, in order: `supabase/schema.sql`,
+   `supabase/subscribers_schema.sql`, `supabase/app_settings_schema.sql`,
+   `supabase/subscribers_lockdown.sql`, `supabase/building_suggestions_schema.sql`
+   and `supabase/housing_price_history_schema.sql`. `subscribers_lockdown.sql`
+   is what keeps phone numbers private: the anon key can't touch the
+   `subscribers` table directly, only the password-checked functions it defines.
+   Set the signup password with
+   `insert into app_settings values ('signup_password', '...')`.
 3. From **Settings > API**, copy the Project URL, the `anon` `public` key,
    and the `service_role` key (**secret**).
 
@@ -38,7 +45,9 @@ actually keeps this on schedule.
 
 ### 3. Frontend config
 Copy `docs/config.example.js` to `docs/config.js` and fill in the Supabase
-URL and **anon** key (never service_role). `docs/config.js` is gitignored.
+URL and **anon** key (never service_role). `docs/config.js` is committed so
+GitHub Pages can serve it: the anon key is public by design, and RLS plus the
+functions in `supabase/subscribers_lockdown.sql` are what protect the data.
 
 ### 4. GitHub Pages
 **Settings > Pages** → deploy from branch → `main` / `/docs`. Requires the

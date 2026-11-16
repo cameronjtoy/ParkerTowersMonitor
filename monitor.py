@@ -476,7 +476,7 @@ def sync_to_supabase(config, units, failed_sources=frozenset()):
                         body["active"] = False
                         newly_delisted += 1
                     supabase_request(
-                        config, "PATCH", f"/rest/v1/listings?id=eq.{r['id']}",
+                        config, "PATCH", f"/rest/v1/listings?id=eq.{urllib.parse.quote(str(r['id']), safe='')}",
                         body=body, extra_headers={"Prefer": "return=minimal"},
                     )
         else:

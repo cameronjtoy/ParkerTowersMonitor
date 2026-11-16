@@ -2,11 +2,55 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="refresh" content="0; url=index.html#analytics">
-<title>Building Analytics</title>
-<script>location.replace('index.html#analytics');</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'">
+<title>Building Analytics — NYC Housing</title>
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<p>Moved to <a href="index.html#analytics">index.html#analytics</a>.</p>
+<div class="wrap">
+  <header>
+    <h1>Building Analytics</h1>
+    <p class="sub">Preserved (non-lottery) income-restricted housing units across the same Queens/Brooklyn neighborhoods tracked on the For Sale page.</p>
+  </header>
+
+  <nav class="tab-bar" aria-label="Sections">
+    <a class="tab-btn" href="index.html">Rentals</a>
+    <a class="tab-btn" href="for-sale.html">For Sale</a>
+    <a class="tab-btn" href="savings.html">Savings</a>
+    <a class="tab-btn active" href="analytics.html" aria-current="page">Analytics</a>
+    <a class="tab-btn" href="metrics.html">Metrics</a>
+  </nav>
+
+  <section class="tab-panel tab-analytics">
+    <p class="sub">Existing occupied buildings that picked up an income-restricted affordability requirement (Preservation projects only — not new construction leased through the Housing Connect lottery). Source: HPD's "Affordable Housing Production by Building."</p>
+
+    <div id="affordDashSection"></div>
+
+    <div id="amiChartSection"></div>
+
+    <div class="filters" style="position:static;border-bottom:none;padding:0;margin-bottom:14px;">
+      <div class="filter-row" id="tierRow"></div>
+      <div class="filter-row" id="affordNeighborhoodRow"></div>
+    </div>
+
+    <div class="meta-line">
+      <span id="affordCountLine"></span>
+    </div>
+
+    <div id="affordLoading" class="loading">Loading affordable housing data…</div>
+    <div class="complex-grid" id="affordGrid"></div>
+    <div class="empty" id="affordEmpty" style="display:none;"></div>
+
+    <footer>
+      Generated on demand from HPD's public "Affordable Housing Production by Building" dataset — covers units financed/regulated since 2014. Not affiliated with HPD.
+    </footer>
+  </section>
+</div>
+
+<script src="config.js"></script>
+<script src="common.js"></script>
+<script src="charts.js"></script>
+<script src="analytics.js"></script>
 </body>
 </html>

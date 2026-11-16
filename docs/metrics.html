@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'">
+<title>Monitor Metrics — NYC Housing</title>
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.js" integrity="sha384-uteMfOloLDGt042uDz+xHGF3ym63/WQ6rFq7murQRG8Ih7QrXGEGNtWd8688sb4O" crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Monitor Metrics</h1>
+    <p class="sub">How often new rentals appear, how long they last, and how prices break down — from the data the monitor has gathered.</p>
+  </header>
+
+  <nav class="tab-bar" aria-label="Sections">
+    <a class="tab-btn" href="index.html">Rentals</a>
+    <a class="tab-btn" href="for-sale.html">For Sale</a>
+    <a class="tab-btn" href="savings.html">Savings</a>
+    <a class="tab-btn" href="analytics.html">Analytics</a>
+    <a class="tab-btn active" href="metrics.html" aria-current="page">Metrics</a>
+  </nav>
+
+  <section class="tab-panel tab-metrics">
+    <div id="metricsLoading" class="loading">Loading metrics…</div>
+    <div class="empty" id="metricsEmpty" style="display:none;">No listings recorded yet.</div>
+    <div class="dash-grid" id="metricsTiles"></div>
+
+    <div id="chartInventory"></div>
+    <div id="chartNewPerDay"></div>
+    <div id="chartWeekday"></div>
+    <div id="chartByProperty"></div>
+    <div id="chartRentBySize"></div>
+    <div id="chartRentDist"></div>
+    <div id="chartTimeListed"></div>
+
+    <p class="signup-title">By property</p>
+    <table class="neighborhood-table">
+      <thead><tr><th>Property</th><th>Total</th><th>Active</th><th>Median rent</th><th>Median listed</th></tr></thead>
+      <tbody id="metricsPropertyTable"></tbody>
+    </table>
+
+    <footer>
+      Computed in your browser from the rental listings the monitor has recorded. "Listed" time is first seen to last seen, so it only reflects what the monitor has observed, not the true listing date.
+    </footer>
+  </section>
+</div>
+
+<script src="config.js"></script>
+<script src="common.js"></script>
+<script src="charts.js"></script>
+<script src="metrics.js"></script>
+</body>
+</html>

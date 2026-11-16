@@ -3,27 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NYC Housing</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'">
+<title>Rental Monitor — NYC Housing</title>
 <link rel="stylesheet" href="styles.css">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.js" integrity="sha384-uteMfOloLDGt042uDz+xHGF3ym63/WQ6rFq7murQRG8Ih7QrXGEGNtWd8688sb4O" crossorigin="anonymous"></script>
+<script src="legacy-redirect.js"></script>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <h1 id="pageTitle">Rental Monitor</h1>
-    <p class="sub" id="pageSub">Live availability across the Stuyvesant Town / Parker Towers / Kips Bay Court / Peter Cooper Village portfolio.</p>
+    <h1>Rental Monitor</h1>
+    <p class="sub">Live availability across the Stuyvesant Town / Parker Towers / Kips Bay Court / Peter Cooper Village portfolio.</p>
   </header>
 
-  <div class="tab-bar">
-    <button class="tab-btn" data-tab="rentals">Rentals</button>
-    <button class="tab-btn" data-tab="for-sale">For Sale</button>
-    <button class="tab-btn" data-tab="savings">Savings Calculator</button>
-    <button class="tab-btn" data-tab="analytics">Analytics</button>
-    <button class="tab-btn" data-tab="metrics">Monitor Metrics</button>
-  </div>
+  <nav class="tab-bar" aria-label="Sections">
+    <a class="tab-btn active" href="index.html" aria-current="page">Rentals</a>
+    <a class="tab-btn" href="for-sale.html">For Sale</a>
+    <a class="tab-btn" href="savings.html">Savings</a>
+    <a class="tab-btn" href="analytics.html">Analytics</a>
+    <a class="tab-btn" href="metrics.html">Metrics</a>
+  </nav>
 
-  <section id="tab-rentals" class="tab-panel">
+  <section class="tab-panel">
     <div class="signup-panel">
       <div id="signupLocked">
         <p class="signup-title">Get texted for new listings</p>
@@ -96,88 +97,10 @@
       Checked every 15 minutes, 6–10am ET daily. Units under the alert threshold are highlighted in gold. Not affiliated with the property manager.
     </footer>
   </section>
-
-  <section id="tab-forsale" class="tab-panel tab-forsale" hidden>
-    <div class="calc-panel">
-      <p class="calc-title">Mortgage assumptions</p>
-      <div class="calc-grid">
-        <div class="calc-field"><label>Down payment (%)</label><input type="number" id="downPct" value="20" min="0" max="100" step="1"></div>
-        <div class="calc-field"><label>Interest rate (%)</label><input type="number" id="rate" value="6.71" min="0" max="15" step="0.01"></div>
-        <div class="calc-field full">
-          <label>Loan term</label>
-          <div class="term-toggle">
-            <div class="term-btn active" data-term="30" data-rate="6.71">30-year</div>
-            <div class="term-btn" data-term="15" data-rate="6.04">15-year</div>
-          </div>
-        </div>
-      </div>
-      <p class="calc-note">Rate defaults are the Freddie Mac PMMS national weekly average as of 09/03/2026 — edit to match your actual quote. P&amp;I only — no tax, insurance, or co-op maintenance / condo common charges. Co-op boards often require higher down payments than a bank would.</p>
-    </div>
-
-    <div class="filter-row" id="typeRow"></div>
-    <div class="filter-row" id="cityRow"></div>
-
-    <div class="meta-line" id="saleCountLine"></div>
-
-    <div id="saleLoading" class="loading">Loading listings…</div>
-    <div id="saleCardList"></div>
-    <div class="empty" id="saleEmpty" style="display:none;"></div>
-
-    <footer>
-      Refreshed on demand (no fixed schedule). Sourced from Redfin — not affiliated.
-    </footer>
-  </section>
-
-  <section id="tab-savings" class="tab-panel" hidden>
-    <div class="calc-panel">
-      <p class="calc-title">Savings goal</p>
-      <div class="calc-grid">
-        <div class="calc-field"><label>Current savings ($)</label><input type="number" id="savStart" value="0" min="0" step="100"></div>
-        <div class="calc-field"><label>Monthly contribution ($)</label><input type="number" id="savMonthly" value="500" min="0" step="50"></div>
-        <div class="calc-field"><label>Expected annual return (%)</label><input type="number" id="savRate" value="7" min="0" max="30" step="0.1"></div>
-        <div class="calc-field"><label>Goal amount ($)</label><input type="number" id="savGoal" value="100000" min="0" step="1000"></div>
-      </div>
-      <p class="calc-note">Purely a projection — nothing here is saved or sent anywhere, it's recalculated in your browser each time. Assumes monthly compounding and a constant contribution/return; real markets don't move in a straight line.</p>
-    </div>
-
-    <div id="savingsResult"></div>
-  </section>
-
-  <section id="tab-analytics" class="tab-panel tab-analytics" hidden>
-    <p class="sub">Existing occupied buildings that picked up an income-restricted affordability requirement (Preservation projects only — not new construction leased through the Housing Connect lottery). Source: HPD's "Affordable Housing Production by Building."</p>
-
-    <div id="affordDashSection"></div>
-
-    <div id="amiChartSection"></div>
-
-    <div class="filters" style="position:static;border-bottom:none;padding:0;margin-bottom:14px;">
-      <div class="filter-row" id="tierRow"></div>
-      <div class="filter-row" id="affordNeighborhoodRow"></div>
-    </div>
-
-    <div class="meta-line">
-      <span id="affordCountLine"></span>
-    </div>
-
-    <div id="affordLoading" class="loading">Loading affordable housing data…</div>
-    <div class="complex-grid" id="affordGrid"></div>
-    <div class="empty" id="affordEmpty" style="display:none;"></div>
-
-    <footer>
-      Generated on demand from HPD's public "Affordable Housing Production by Building" dataset — covers units financed/regulated since 2014. Not affiliated with HPD.
-    </footer>
-  </section>
-
-  <section id="tab-metrics" class="tab-panel tab-metrics" hidden>
-    <div id="metricsLoading" class="loading">Loading metrics…</div>
-    <div id="metricsBody"></div>
-    <footer>
-      Computed in your browser from the rental listings the monitor has recorded. "Listed" time is first seen to last seen, so it only reflects what the monitor has observed, not the true listing date.
-    </footer>
-  </section>
 </div>
 
 <script src="config.js"></script>
-<script src="app.js"></script>
+<script src="common.js"></script>
+<script src="rentals.js"></script>
 </body>
 </html>
